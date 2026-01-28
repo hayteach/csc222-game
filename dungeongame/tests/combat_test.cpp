@@ -3,7 +3,7 @@
 
 using namespace dungeongame;
 
-int main() {
+extern "C" int main() {
     std::cout << "Running combat_test...\n";
 
     Enemy goblin("Goblin", 10, 3);
