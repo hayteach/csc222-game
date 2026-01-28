@@ -3,8 +3,8 @@
 /.DS_Store
 ./.zencoder
 ./.zenflow
-./dungeongame/bin
-./dungeongame/obj
+./dungeongame/bin/*
+./dungeongame/obj/*
 ./dungeongame/scripts
 
 

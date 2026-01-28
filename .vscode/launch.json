@@ -2,12 +2,30 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch Game (interactive)",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/dungeongame/bin/dungeongame",
+      "args": [],
+      "cwd": "${workspaceFolder}/dungeongame",
+      "preLaunchTask": "Make (project root)"
+    },
+    {
+      "name": "Run Tests",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/dungeongame/bin/combat_test",
+      "args": [],
+      "cwd": "${workspaceFolder}/dungeongame",
+      "preLaunchTask": "Make (project root)"
+    },
+    {
       "name": "C/C++ Runner: Debug Session",
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/heidiahders/Documents/MendocinoCollege/Class/2026/Spring/CSC222/game/dungeongame/src",
-      "program": "/Users/heidiahders/Documents/MendocinoCollege/Class/2026/Spring/CSC222/game/dungeongame/src/build/Debug/outDebug"
+      "cwd": "${workspaceFolder}/dungeongame",
+      "program": "${workspaceFolder}/dungeongame/bin/dungeongame"
     }
   ]
 }
