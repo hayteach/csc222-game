@@ -17,8 +17,6 @@ namespace dungeongame {
 class Enemy : public Character {
 private:
     int attackPower;
-    int defense;
-    int maxHealth;
     int expReward;
     int goldReward;
 public:

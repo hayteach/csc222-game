@@ -13,6 +13,7 @@
 
 #include <string>
 #include "Player.h"
+#include "Enemy.h"
 
 namespace dungeongame {
 
@@ -31,6 +32,9 @@ private:
     void displayMap() const;
     void displayMenu() const;
     void processChoice(int choice);
+
+    // Combat handling
+    void processCombat(Enemy& enemy);
 
 public:
     Game();

@@ -18,8 +18,12 @@ namespace dungeongame {
     //     : Character(name, hp), attackPower(attack) {}
 
     Enemy::Enemy(const std::string& name, int hp, int attack, int def, int exp, int gold)
-        : Character(name, hp), attackPower(attack), defense(def), maxHealth(hp), expReward(exp), goldReward(gold) {
-        // Nothing else needed here; Character initialized health.
+        : Character(name, hp), attackPower(attack), expReward(exp), goldReward(gold) {
+        // keep derived/base stats in sync
+        this->attack = attackPower;
+        this->defense = def;
+        this->maxHealth = hp;
+        this->health = hp;
     }
 
     int Enemy::getAttackPower() const {
