@@ -16,15 +16,26 @@
 namespace dungeongame {
 
 class Player : public Character {
-private:
-    int level;
-    int gold;
-public:
-    Player(const std::string& name = "Player");
+    private:
+        int level;
+        int gold;
+        int experience;
+    public:
+        Player(const std::string& name = "Player");
 
-    // Movement within a bounded map (map bounds enforced by caller)
-    void move(int dx, int dy);
-    void displayStats() const;
-};
+        // Movement within a bounded map (map bounds enforced by caller)
+        void move(int dx, int dy);
+        void displayStats() const override;
+
+        // Progression
+        void gainExperience(int exp);
+        void levelUp();
+        void addGold(int amount);
+
+        // Accessors
+        int getLevel() const;
+        int getGold() const;
+        int getExperience() const;
+    };
 
 } // namespace dungeongame

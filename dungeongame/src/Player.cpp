@@ -14,35 +14,63 @@
 
 namespace dungeongame {
 
-Player::Player(const std::string& name)
-    : Character(name, 20), level(1), gold(0) {
-    // start near top-left corner (0,0)
-    pos.x = 0;
-    pos.y = 0;
-}
+    Player::Player(const std::string& name)
+        : Character(name, 20), level(1), gold(0), experience(0) {
+        // start near top-left corner (0,0)
+        pos.x = 0;
+        pos.y = 0;
+    }
 
-void Player::move(int dx, int dy) {
-    int newX = pos.x + dx;
-    int newY = pos.y + dy;
+    void Player::move(int dx, int dy) {
+        int newX = pos.x + dx;
+        int newY = pos.y + dy;
 
-    // Keep player inside the 0..4 range (matches Game map size)
-    if (newX < 0) newX = 0;
-    if (newY < 0) newY = 0;
-    if (newX > 4) newX = 4;
-    if (newY > 4) newY = 4;
+        // Keep player inside the 0..4 range (matches Game map size)
+        if (newX < 0) newX = 0;
+        if (newY < 0) newY = 0;
+        if (newX > 4) newX = 4;
+        if (newY > 4) newY = 4;
 
-    pos.x = newX;
-    pos.y = newY;
-}
+        pos.x = newX;
+        pos.y = newY;
+    }
 
-void Player::displayStats() const {
-    std::cout << "\n--- Player Stats ---\n";
-    std::cout << "Name: " << name << "\n";
-    std::cout << "Health: " << health << "\n";
-    std::cout << "Level: " << level << "\n";
-    std::cout << "Gold: " << gold << "\n";
-    std::cout << "Position: (" << pos.x << ", " << pos.y << ")\n";
-}
+    void Player::displayStats() const {
+        std::cout << "\n--- Player Stats ---\n";
+        std::cout << "Name: " << name << "\n";
+        std::cout << "Health: " << health << "\n";
+        std::cout << "Level: " << level << "\n";
+        std::cout << "Gold: " << gold << "\n";
+        std::cout << "Experience: " << experience << "\n";
+        std::cout << "Position: (" << pos.x << ", " << pos.y << ")\n";
+    }
+    
+    void Player::gainExperience(int exp) {
+        if (exp <= 0) return;
+        experience += exp;
+        // Simple threshold: 100 * level
+        while (experience >= level * 100) {
+            experience -= level * 100;
+            levelUp();
+        }
+    }
+
+    void Player::levelUp() {
+        ++level;
+        maxHealth += 10;
+        health = maxHealth; // Heal on level up
+        attack += 2;
+        defense += 1;
+        std::cout << name << " leveled up to " << level << "!\n";
+    }
+
+    void Player::addGold(int amount) {
+        if (amount > 0) gold += amount;
+    }
+
+    int Player::getLevel() const { return level; }
+    int Player::getGold() const { return gold; }
+    int Player::getExperience() const { return experience; }
 
 }
 
