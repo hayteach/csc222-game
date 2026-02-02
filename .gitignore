@@ -1,10 +1,17 @@
-./.vscode
-/.idea
-/.DS_Store
-./.zencoder
-./.zenflow
-./dungeongame/bin/*
-./dungeongame/obj/*
-./dungeongame/scripts
+.vscode/
+.idea/
+.DS_Store
 
+# Build artifacts (binaries, object files, symbol bundles)
+dungeongame/bin/
+dungeongame/obj/
+**/*.o
+**/*.dSYM/
 
+# Project scripts (local helper scripts)
+dungeongame/scripts/
+
+# CMake / build directories
+/build/
+CMakeFiles/
+compile_commands.json
