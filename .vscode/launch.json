@@ -2,30 +2,51 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Game (interactive)",
+      "name": "Launch Game (LLDB - macOS/Linux)",
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/dungeongame/bin/dungeongame",
       "args": [],
       "cwd": "${workspaceFolder}/dungeongame",
-      "preLaunchTask": "Make (project root)"
+      "preLaunchTask": "Make (project root)",
+      "osx": { "program": "${workspaceFolder}/dungeongame/bin/dungeongame" },
+      "linux": { "program": "${workspaceFolder}/dungeongame/bin/dungeongame" }
     },
     {
-      "name": "Run Tests",
+      "name": "Launch Game (Windows - cppdbg)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/dungeongame/bin/dungeongame.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}/dungeongame",
+      "preLaunchTask": "Make (project root)",
+      "windows": { "program": "${workspaceFolder}/dungeongame/bin/dungeongame.exe" },
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:/msys64/mingw64/bin/gdb.exe",
+      "setupCommands": [
+        { "description": "Enable pretty-printing for gdb", "text": "-enable-pretty-printing", "ignoreFailures": true }
+      ]
+    },
+    {
+      "name": "Run Tests (LLDB - macOS/Linux)",
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/dungeongame/bin/combat_test",
-      "args": [],
       "cwd": "${workspaceFolder}/dungeongame",
-      "preLaunchTask": "Make (project root)"
+      "preLaunchTask": "Make (project root)",
+      "osx": { "program": "${workspaceFolder}/dungeongame/bin/combat_test" },
+      "linux": { "program": "${workspaceFolder}/dungeongame/bin/combat_test" }
     },
     {
-      "name": "C/C++ Runner: Debug Session",
-      "type": "lldb",
+      "name": "Run Tests (Windows - cppdbg)",
+      "type": "cppdbg",
       "request": "launch",
-      "args": [],
+      "program": "${workspaceFolder}/dungeongame/bin/combat_test.exe",
       "cwd": "${workspaceFolder}/dungeongame",
-      "program": "${workspaceFolder}/dungeongame/bin/dungeongame"
+      "preLaunchTask": "Make (project root)",
+      "windows": { "program": "${workspaceFolder}/dungeongame/bin/combat_test.exe" },
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:/msys64/mingw64/bin/gdb.exe"
     }
   ]
 }
