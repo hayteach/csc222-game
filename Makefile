@@ -3,7 +3,7 @@ CXXFLAGS = -std=c++17 -Wall -Wextra -g -I dungeongame/include -I dungeongame/inc
 
 # Sources
 SRC = $(wildcard dungeongame/src/*.cpp)
-SRCS_LIB = $(filter-out dungeongame/src/main.cpp, $(SRC))
+SRCS_LIB = $(filter-out dungeongame/src/main.cpp dungeongame/src/pointers_demo.cpp, $(SRC))
 TEST_SRC = dungeongame/tests/combat_test.cpp dungeongame/tests/test_inventory.cpp dungeongame/tests/test_enemygroup.cpp
 TEST_BIN = $(BIN_DIR)/combat_test
 

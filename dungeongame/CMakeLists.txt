@@ -14,8 +14,8 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # Collect sources
 file(GLOB ALL_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
-# Exclude main.cpp from the library
-list(REMOVE_ITEM ALL_SOURCES "${PROJECT_SOURCE_DIR}/src/main.cpp")
+# Exclude main.cpp and pointers_demo.cpp from the library (they are standalone programs)
+list(REMOVE_ITEM ALL_SOURCES "${PROJECT_SOURCE_DIR}/src/main.cpp" "${PROJECT_SOURCE_DIR}/src/pointers_demo.cpp")
 
 # Create a library from core sources (Game, Character, Player, Enemy)
 add_library(dungeongame_lib STATIC ${ALL_SOURCES})
