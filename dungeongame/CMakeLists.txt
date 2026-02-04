@@ -32,6 +32,11 @@ target_link_libraries(combat_test PRIVATE dungeongame_lib)
 
 target_include_directories(combat_test PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
+# Pointers demo (interactive) - week02 scaffold
+add_executable(pointers_demo ${PROJECT_SOURCE_DIR}/src/pointers_demo.cpp)
+# Pointers demo doesn't depend on the library, but keep includes consistent
+target_include_directories(pointers_demo PRIVATE ${PROJECT_SOURCE_DIR}/include)
+
 # Optional: enable warnings on both targets
 if(MSVC)
     target_compile_options(dungeongame_lib PRIVATE /W4 /permissive-)
