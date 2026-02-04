@@ -13,6 +13,7 @@
 3. Guided lab (45 min): Students implement an **array-based `Inventory` ADT** (dynamic resizing, add/remove, access) and an **`EnemyGroup`** that stores multiple `Enemy` objects (contiguous storage exposing raw pointer access). Tests will verify behavior and require iterating using both index and pointer arithmetic.
    - Implement `Inventory.h` / `Inventory.cpp` (array-backed, expose `rawData()` to practice pointer arithmetic).
    - Implement `EnemyGroup.h` / `EnemyGroup.cpp` (uses `std::vector<Enemy>` and exposes `data()` for pointer traversal).
+   - **Play the in-game pointers exercise**: the main menu includes **"8) Prepare Potions (Pointers demo)"** which reads an integer, demonstrates pointer inspection/modification, allocates a dynamic array, uses pointer arithmetic to modify values, transfers results into the player's `Inventory`, and frees the dynamic memory. After running the demo, use **9) Show Inventory** and **10) Use Potion** to confirm gameplay effects and to compare manual `new[]/delete[]` with RAII-based cleanup.
    - Add tests `test_inventory.cpp` and `test_enemygroup.cpp` to `dungeongame/tests/` and run `make test`.
 4. Demo & clean-up (15 min): Run tests and demo a short game snippet showing inventory usage and managing multiple enemies.
 

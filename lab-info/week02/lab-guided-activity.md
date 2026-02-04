@@ -74,9 +74,16 @@ Tasks (game-oriented):
 5. Print the array values directly (`myArray[i]`) and then again using a pointer `ptrToMyArray` to access elements (`*(ptrToMyArray + i)`).
 6. Free any dynamically allocated memory with `delete[]` and, as an exercise in RAII, provide an alternate implementation using a small wrapper class with a destructor to ensure no leaks.
 
+In-game exercise (integrated into the project):
+- The game includes a built-in, playable demonstration of this lab under the main menu: **"8) Prepare Potions (Pointers demo)"**.
+  - Run the game (`make` then `./dungeongame/bin/dungeongame`) and choose option **8**.
+  - The demo reads an integer (`myVar`), uses a pointer to inspect and modify it, allocates a dynamic array and uses pointer arithmetic to modify elements, then transfers the results into the player's `Inventory` (RAII) and frees the dynamic memory with `delete[]`.
+  - After using the demo, students can view their inventory with **9) Show Inventory** and consume a potion with **10) Use Potion** to see gameplay effects.
+
 Instructor hints:
 - Encourage students to verify no leaks by running with sanitizers (e.g., `-fsanitize=address`) or by relying on the RAII wrapper's destructor.
 - Ask students to discuss why pointer arithmetic `*(ptr + i)` is equivalent to `ptr[i]` and how addresses change as `i` increases.
+- Suggested extensions: add a confirmation prompt to the demo, change the pointer operations (e.g., decrementing or shuffling values), write unit tests that validate inventory contents after running the demo, or integrate the potions into combat.
 
 ---
 
