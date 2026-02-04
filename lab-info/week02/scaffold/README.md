@@ -1,21 +1,24 @@
-Week 02 scaffold — Enemy class and tests
+Week 02 scaffold — ADTs, Arrays, and Pointers
 
-This scaffold contains minimal files and instructions to add an `Enemy` entity to the `dungeongame` project.
+This scaffold provides templates and exercises for implementing Abstract Data Types (ADTs) and working with contiguous arrays and raw pointers in C++.
 
-Files provided:
-- `dungeongame/include/dungeongame/Enemy.h` — header skeleton
-- `dungeongame/src/Enemy.cpp` — implementation skeleton
+Files provided (scaffold copies included here and placed under `dungeongame/`):
+- `dungeongame/include/dungeongame/Inventory.h` — array-backed Inventory ADT (header)
+- `dungeongame/src/Inventory.cpp` — implementation
+- `dungeongame/tests/test_inventory.cpp` — unit tests for `Inventory`
+- `dungeongame/include/dungeongame/EnemyGroup.h` — contiguous storage wrapper for `Enemy` objects
+- `dungeongame/src/EnemyGroup.cpp` — implementation
+- `dungeongame/tests/test_enemygroup.cpp` — unit tests for `EnemyGroup`
 
 How to use:
-1. Copy the files into the project (or merge their contents):
-   - `cp -r dungeongame/include/dungeongame/Enemy.h ../../dungeongame/include/dungeongame/Enemy.h`
-   - `cp dungeongame/src/Enemy.cpp ../../dungeongame/src/Enemy.cpp`
-2. Add `Enemy.cpp` to compilation (Make/CMake already globs all `src/*.cpp` so it should be picked up).
-3. Include and test: add tests in `dungeongame/tests/` to verify enemy behavior.
+1. Files are already available in the scaffold and the project — students can copy or merge as needed.
+2. Build and run tests: `make` and then `make test`, or run `dungeongame/tests/run_tests.sh`.
+3. Inspect `Inventory::rawData()` and `EnemyGroup::rawData()` to practice pointer arithmetic and traversal.
 
-Suggested tasks for students:
-- Implement enemy health and simple `takeDamage(int)` method.
-- Implement `moveTowardsPlayer()` stub and test map placement.
-- Add a combat unit test that exercises damage exchange.
+Suggested student tasks:
+- Implement `Inventory` add/remove and dynamic resize.
+- Use pointer arithmetic on `Inventory::rawData()` to traverse items in a test.
+- Implement a linked-list backed `Inventory` as an extension to contrast contiguous vs non-contiguous behavior.
+- Modify `Player` to hold an `Inventory` (optional) and add tests for picking up/dropping items.
 
-Notes for instructors: These scaffold files are intentionally minimal — they are templates for students to modify and extend.
+Notes for instructors: The scaffold is ready-to-run. Encourage small, test-driven changes and branch-based submissions `week02/<username>`.

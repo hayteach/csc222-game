@@ -12,9 +12,11 @@
 #include "Player.h"
 #include <iostream>
 
+using namespace std; // Standard namespace
+
 namespace dungeongame {
 
-    Player::Player(const std::string& name)
+    Player::Player(const string& name)
         : Character(name, 20), level(1), gold(0), experience(0) {
         // start near top-left corner (0,0)
         pos.x = 0;
@@ -36,13 +38,13 @@ namespace dungeongame {
     }
 
     void Player::displayStats() const {
-        std::cout << "\n--- Player Stats ---\n";
-        std::cout << "Name: " << name << "\n";
-        std::cout << "Health: " << health << "\n";
-        std::cout << "Level: " << level << "\n";
-        std::cout << "Gold: " << gold << "\n";
-        std::cout << "Experience: " << experience << "\n";
-        std::cout << "Position: (" << pos.x << ", " << pos.y << ")\n";
+        cout << "\n--- Player Stats ---\n";
+        cout << "Name: " << name << "\n";
+        cout << "Health: " << health << "\n";
+        cout << "Level: " << level << "\n";
+        cout << "Gold: " << gold << "\n";
+        cout << "Experience: " << experience << "\n";
+        cout << "Position: (" << pos.x << ", " << pos.y << ")\n";
     }
     
     void Player::gainExperience(int exp) {
@@ -61,7 +63,7 @@ namespace dungeongame {
         health = maxHealth; // Heal on level up
         attack += 2;
         defense += 1;
-        std::cout << name << " leveled up to " << level << "!\n";
+        cout << name << " leveled up to " << level << "!\n";
     }
 
     void Player::addGold(int amount) {

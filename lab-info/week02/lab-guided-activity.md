@@ -76,6 +76,13 @@ Optional: Add an `EnemyFactory` helper to create enemies by name.
 - Encourage pair programming and frequent commits.
 - Use `combat_test` as a quick unit test — extend it to check edge cases.
 
+### Style note: headers and `using namespace std;`
+- **Do not** put `using namespace std;` in header files. This causes the entire `std` namespace to be imported into every translation unit that includes the header, which can lead to name collisions, surprising compilation errors, and harder-to-debug code. Instead, prefer:
+  - Explicit `std::` qualifiers in headers (e.g., `std::string`) so the interface is clear and safe for all users.
+  - If desired, add `using namespace std;` or selective `using std::cout;` inside `.cpp` files only, where the effect is limited to a single translation unit.
+
+- **Include vs availability:** Always include the headers that declare the symbols your header uses (e.g., if `Player.h` uses `std::string` add `#include <string>` directly in `Player.h`). Relying on transitive includes (another header including `<string>` for you) is brittle — if that header changes, your header may fail to compile. Make headers self-sufficient: "include what you use."
+
 ---
 
 Happy teaching! 🎓

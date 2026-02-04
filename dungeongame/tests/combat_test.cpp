@@ -3,8 +3,17 @@
 #include <ctime>
 #include "dungeongame/Enemy.h"
 #include "dungeongame/Player.h"
+#include "dungeongame/Inventory.h"
+#include "dungeongame/EnemyGroup.h"
 
 using namespace dungeongame;
+using namespace std;
+using namespace std;
+
+// Forward declarations for week02 tests
+extern bool test_inventory_add_and_remove();
+extern bool test_inventory_pointer_traversal();
+extern bool test_enemygroup_add_and_traverse();
 
 // Helper: compute damage as in Game::processCombat
 static int calc_damage(const Character& attacker, const Character& defender) {
@@ -55,26 +64,31 @@ static bool test_flee_failure() {
 }
 
 extern "C" int main() {
-    std::cout << "Running combat_test...\n";
+    cout << "Running combat_test...\n";
 
     // Basic property checks
     Enemy goblin("Goblin", 10, 3);
-    if (goblin.getAttackPower() != 3) { std::cerr << "FAIL: attackPower expected 3\n"; return 1; }
-    if (goblin.getHealth() != 10) { std::cerr << "FAIL: health expected 10\n"; return 1; }
+    if (goblin.getAttackPower() != 3) { cerr << "FAIL: attackPower expected 3\n"; return 1; }
+    if (goblin.getHealth() != 10) { cerr << "FAIL: health expected 10\n"; return 1; }
 
     // Movement
     Enemy orc("Orc", 8, 2);
     orc.setPosition(0, 0);
     orc.moveTowards(2, 3);
     auto pos = orc.getPosition();
-    if (pos.x != 1 || pos.y != 1) { std::cerr << "FAIL: movement\n"; return 1; }
+    if (pos.x != 1 || pos.y != 1) { cerr << "FAIL: movement\n"; return 1; }
 
     // Scenario tests
-    if (!test_victory()) { std::cerr << "FAIL: test_victory\n"; return 1; }
-    if (!test_defeat()) { std::cerr << "FAIL: test_defeat\n"; return 1; }
-    if (!test_flee_success()) { std::cerr << "FAIL: test_flee_success\n"; return 1; }
-    if (!test_flee_failure()) { std::cerr << "FAIL: test_flee_failure\n"; return 1; }
+    if (!test_victory()) { cerr << "FAIL: test_victory\n"; return 1; }
+    if (!test_defeat()) { cerr << "FAIL: test_defeat\n"; return 1; }
+    if (!test_flee_success()) { cerr << "FAIL: test_flee_success\n"; return 1; }
+    if (!test_flee_failure()) { cerr << "FAIL: test_flee_failure\n"; return 1; }
 
-    std::cout << "combat_test: PASS\n";
+    // Week 02: ADT tests
+    if (!test_inventory_add_and_remove()) { cerr << "FAIL: test_inventory_add_and_remove\n"; return 1; }
+    if (!test_inventory_pointer_traversal()) { cerr << "FAIL: test_inventory_pointer_traversal\n"; return 1; }
+    if (!test_enemygroup_add_and_traverse()) { cerr << "FAIL: test_enemygroup_add_and_traverse\n"; return 1; }
+
+    cout << "combat_test: PASS\n";
     return 0;
 }

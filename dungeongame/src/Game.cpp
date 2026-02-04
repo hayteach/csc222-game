@@ -40,7 +40,7 @@ void Game::placePlayerOnMap() {
 }
 
 void Game::displayMap() const {
-    std::cout << "Map:\n";
+    cout << "Map:\n";
     for (int y = 0; y < MAP_HEIGHT; ++y) {
         for (int x = 0; x < MAP_WIDTH; ++x) {
             cout << map[y][x] << ' ';

@@ -12,12 +12,23 @@
 
 #include "Enemy.h"
 
+using namespace std; // Standard namespace
+
+// ADT relevance (Week 02):
+// - `Enemy` is a `Character`-derived element type that can be stored in ADTs
+//   such as `EnemyGroup` or other containers. When stored in contiguous
+//   containers, pointers to elements (from `.data()`) can be used for
+//   traversal and pointer arithmetic in exercises.
+// - Pointer and lifetime safety: a pointer returned from a container (raw or
+//   via `data()`) is only valid while the container isn't resized or destroyed.
+//   Use tests to illustrate safe usage and to discuss ownership semantics.
+
 namespace dungeongame {
 
-    // Enemy::Enemy(const std::string& name, int hp, int attack)
+    // Enemy::Enemy(const string& name, int hp, int attack)
     //     : Character(name, hp), attackPower(attack) {}
 
-    Enemy::Enemy(const std::string& name, int hp, int attack, int def, int exp, int gold)
+    Enemy::Enemy(const string& name, int hp, int attack, int def, int exp, int gold)
         : Character(name, hp), attackPower(attack), expReward(exp), goldReward(gold) {
         // keep derived/base stats in sync
         this->attack = attackPower;

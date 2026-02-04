@@ -11,7 +11,17 @@
 */
 #pragma once
 
+#include <string>
+
 #include "Character.h"
+
+// Instructor/student note (Week 02 - ADTs & Composition):
+// - To integrate ADTs into the gameplay, `Player` can *contain* an ADT such
+//   as `Inventory` (composition). This demonstrates how compound ADTs are
+//   used in larger systems (Player has-an Inventory).
+// - To keep the lab minimal, adding an Inventory member is optional for
+//   students; if you add it, include `#include "Inventory.h"` and add a
+//   member like `Inventory inventory;` to the `Player` class.
 
 namespace dungeongame {
 

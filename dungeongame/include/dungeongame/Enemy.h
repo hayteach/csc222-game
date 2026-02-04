@@ -10,6 +10,8 @@
                               Character.cpp, Player.cpp
 */#pragma once
 
+#include <string>
+
 #include "Character.h"
 
 namespace dungeongame {
