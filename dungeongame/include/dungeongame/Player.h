@@ -14,6 +14,7 @@
 #include <string>
 
 #include "Character.h"
+#include "Inventory.h"
 
 // Instructor/student note (Week 02 - ADTs & Composition):
 // - To integrate ADTs into the gameplay, `Player` can *contain* an ADT such
@@ -30,6 +31,8 @@ class Player : public Character {
         int level;
         int gold;
         int experience;
+        // Composition: player has an Inventory (Week 02 - ADTs & Pointers)
+        Inventory inventory;
     public:
         Player(const std::string& name = "Player");
 
@@ -41,6 +44,11 @@ class Player : public Character {
         void gainExperience(int exp);
         void levelUp();
         void addGold(int amount);
+
+        // Inventory helpers (simple wrappers)
+        void addItem(const Item& item);
+        void showInventory() const;
+        bool usePotion(); // returns true if a potion was used
 
         // Accessors
         int getLevel() const;

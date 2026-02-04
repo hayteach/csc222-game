@@ -60,6 +60,8 @@ void Game::displayMenu() const {
     cout << "6) Quit\n";
     cout << "7) Encounter Enemy (demo)\n";
     cout << "8) Prepare Potions (Pointers demo)\n";
+    cout << "9) Show Inventory\n";
+    cout << "10) Use Potion\n";
     cout << "Choose an action: ";
 }
 
@@ -81,6 +83,14 @@ void Game::processChoice(int choice) {
         case 8: {
             // Pointers & dynamic memory demo integrated into game
             runPointersDemo();
+            break;
+        }
+        case 9: {
+            player.showInventory();
+            break;
+        }
+        case 10: {
+            if (!player.usePotion()) cout << "No potions available." << endl;
             break;
         }
         default: cout << "Invalid choice." << endl; break;
@@ -167,7 +177,12 @@ void Game::runPointersDemo() {
     cout << "iptr address: " << static_cast<const void*>(iptr) << '\n';
     cout << "*iptr value: " << *iptr << "\n\n";
 
-    // Dynamic integer array
+    // Manipulate myVar through its pointer (demonstrates inspecting/modifying via pointer)
+    cout << "Incrementing myVar via iptr...\n";
+    (*iptr)++;
+    cout << "myVar after increment: " << myVar << "\n\n";
+
+    // Dynamic integer array allocated using the (possibly updated) myVar
     int* myArray = new int[myVar];
     for (int i = 0; i < myVar; ++i) myArray[i] = i + 1;
 
@@ -175,24 +190,22 @@ void Game::runPointersDemo() {
     for (int i = 0; i < myVar; ++i) cout << myArray[i] << (i + 1 == myVar ? '\n' : ' ');
 
     int* ptrToMyArray = myArray;
+    cout << "Enhancing potions via pointer arithmetic (multiply values by 10)...\n";
+    for (int i = 0; i < myVar; ++i) *(ptrToMyArray + i) *= 10;
+
     cout << "Array values (via pointer ptrToMyArray): ";
     for (int i = 0; i < myVar; ++i) cout << *(ptrToMyArray + i) << (i + 1 == myVar ? '\n' : ' ');
 
-    delete[] myArray;
-    cout << "Manual delete[] called.\n\n";
-
-    cout << "Now showing RAII via Inventory (Item struct) with capacity " << myVar << ":\n";
-    {
-        Inventory potions(myVar);
-        for (int i = 0; i < myVar; ++i) potions.add(Item("Potion #" + to_string(i + 1), i + 1));
-        Item* raw = potions.rawData();
-        cout << "Inventory rawData pointer: " << static_cast<const void*>(raw) << '\n';
-        cout << "Inventory contents (via raw pointer): ";
-        for (size_t i = 0; i < potions.size(); ++i) cout << raw[i].name << (i + 1 == potions.size() ? '\n' : ' ');
-        cout << "Inventory contents (via operator[]): ";
-        for (size_t i = 0; i < potions.size(); ++i) cout << potions[i].name << (i + 1 == potions.size() ? '\n' : ' ');
+    // Transfer dynamic array items into the player's Inventory (player owns potions now)
+    for (int i = 0; i < myVar; ++i) {
+        player.addItem(Item("Potion #" + to_string(i + 1), myArray[i]));
     }
-    cout << "Inventory destructor called (RAII cleanup complete).\n";
+
+    // Free manually-allocated array
+    delete[] myArray;
+    cout << "Manual delete[] called. All dynamically allocated memory released.\n\n";
+
+    cout << "Added " << myVar << " potions to your inventory. Use 'Show Inventory' and 'Use Potion' from the main menu.\n";
 
 }
 

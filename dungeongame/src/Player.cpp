@@ -16,8 +16,32 @@ using namespace std; // Standard namespace
 
 namespace dungeongame {
 
+// Inventory helper implementations
+void Player::addItem(const Item& item) {
+    inventory.add(item);
+}
+
+void Player::showInventory() const {
+    cout << "\n--- Inventory (" << inventory.size() << " items) ---\n";
+    for (size_t i = 0; i < inventory.size(); ++i) {
+        cout << i << ") " << inventory[i].name << " (value=" << inventory[i].value << ")\n";
+    }
+}
+
+bool Player::usePotion() {
+    if (inventory.size() == 0) return false;
+    // Use last item as potion: remove and apply its value as heal
+    Item it = inventory.removeAt(inventory.size() - 1);
+    int healAmount = it.value;
+    health += healAmount;
+    if (health > maxHealth) health = maxHealth;
+    cout << name << " used " << it.name << " and healed " << healAmount << " HP.\n";
+    return true;
+}
+
+
     Player::Player(const string& name)
-        : Character(name, 20), level(1), gold(0), experience(0) {
+        : Character(name, 20), level(1), gold(0), experience(0), inventory(4) {
         // start near top-left corner (0,0)
         pos.x = 0;
         pos.y = 0;
