@@ -9,6 +9,23 @@ Files provided (scaffold copies included here and placed under `dungeongame/`):
 - `dungeongame/include/dungeongame/EnemyGroup.h` — contiguous storage wrapper for `Enemy` objects
 - `dungeongame/src/EnemyGroup.cpp` — implementation
 - `dungeongame/tests/test_enemygroup.cpp` — unit tests for `EnemyGroup`
+- `dungeongame/src/pointers_demo.cpp` — small interactive pointers & dynamic memory demo (game-themed); exercises use `myVar`, `iptr`, `myArray`, and `ptrToMyArray` and includes an RAII wrapper example
+
+How to build & run the pointers demo (quick start):
+
+```bash
+# From the scaffold directory (or copy into your project src/):
+# Compile directly with g++ (no CMake required for the demo):
+cd dungeongame/src
+g++ -std=c++17 pointers_demo.cpp -o pointers_demo
+./pointers_demo
+```
+
+Tip: Run with the AddressSanitizer to verify no leaks:
+
+```bash
+g++ -std=c++17 -fsanitize=address pointers_demo.cpp -o pointers_demo && ./pointers_demo
+```
 
 How to use:
 1. Files are already available in the scaffold and the project — students can copy or merge as needed.

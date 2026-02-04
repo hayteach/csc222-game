@@ -62,6 +62,24 @@ Optional: Add an `EnemyFactory` helper to create enemies by name.
 
 ---
 
+### Part F — Pointers & Dynamic Memory (15–20 min)
+
+In this part, students will practice raw pointers and dynamic allocation using a game-themed example. Treat `myVar` as an in-game quantity (for example, a number of potions or slots in a chest).
+
+Tasks (game-oriented):
+1. Prompt the user to input an integer value and store it in an `int myVar` (e.g., "How many potions do you want to prepare?").
+2. Create a pointer `iptr` and store the address of `myVar` in it (`int *iptr = &myVar;`).
+3. Print the value of `myVar`, the address stored in `iptr`, and the value pointed to by `iptr`.
+4. Create a dynamic integer array `myArray` of size `myVar` (`int *myArray = new int[myVar];`) and fill it with values `1..myVar` (you can think of these as potion IDs or slot numbers).
+5. Print the array values directly (`myArray[i]`) and then again using a pointer `ptrToMyArray` to access elements (`*(ptrToMyArray + i)`).
+6. Free any dynamically allocated memory with `delete[]` and, as an exercise in RAII, provide an alternate implementation using a small wrapper class with a destructor to ensure no leaks.
+
+Instructor hints:
+- Encourage students to verify no leaks by running with sanitizers (e.g., `-fsanitize=address`) or by relying on the RAII wrapper's destructor.
+- Ask students to discuss why pointer arithmetic `*(ptr + i)` is equivalent to `ptr[i]` and how addresses change as `i` increases.
+
+---
+
 ## Assessment Checklist (what you must show the instructor)
 - [ ] Project builds (no compile errors)
 - [ ] `combat_test` runs and prints combat events
