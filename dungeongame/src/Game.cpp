@@ -153,8 +153,6 @@ void Game::processCombat(Enemy& enemy) {
 
 void Game::runPointersDemo() {
     cout << "\n--- Potions Prep (Pointers Demo) ---" << endl;
-    cout << "(Mini-lesson) Pointer arithmetic lets you traverse contiguous memory (arrays)\n";
-    cout << "and RAII (destructors) ensures resources are freed automatically at scope exit.\n";
     cout << "How many potions would you like to prepare? ";
     int myVar;
     if (!(cin >> myVar) || myVar <= 0) {
@@ -180,12 +178,8 @@ void Game::runPointersDemo() {
     cout << "Array values (via pointer ptrToMyArray): ";
     for (int i = 0; i < myVar; ++i) cout << *(ptrToMyArray + i) << (i + 1 == myVar ? '\n' : ' ');
 
-    // Show addresses to demonstrate pointer arithmetic
-    cout << "Array element addresses: ";
-    for (int i = 0; i < myVar; ++i) cout << static_cast<const void*>(&myArray[i]) << (i + 1 == myVar ? '\n' : ' ');
-
     delete[] myArray;
-    cout << "Manual delete[] called. (Be careful to avoid leaks when using new[]/delete[])\n\n";
+    cout << "Manual delete[] called.\n\n";
 
     cout << "Now showing RAII via Inventory (Item struct) with capacity " << myVar << ":\n";
     {
@@ -199,8 +193,6 @@ void Game::runPointersDemo() {
         for (size_t i = 0; i < potions.size(); ++i) cout << potions[i].name << (i + 1 == potions.size() ? '\n' : ' ');
     }
     cout << "Inventory destructor called (RAII cleanup complete).\n";
-
-    cout << "\nLesson summary: Use pointer arithmetic (ptr + i or ptr[i]) to traverse contiguous memory; prefer RAII (destructors) to manage resources and prevent leaks.\n";
 
 }
 
