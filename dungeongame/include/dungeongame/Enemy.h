@@ -8,7 +8,8 @@
   
         Other files required: Character.h, Player.h, Game.h, Game.cpp,
                               Character.cpp, Player.cpp
-*/#pragma once
+*/
+#pragma once
 
 #include <string>
 
@@ -27,12 +28,14 @@ public:
           int exp = 20, int gold = 5);
 
     int getAttackPower() const;
-    void takeDamage(int d);
+   
     int getExpReward() const;
     int getGoldReward() const;
 
     // Simple AI: move towards the player's coordinates (to be implemented by students)
+    void takeDamage(int d);
     void moveTowards(int playerX, int playerY);
+    
 };
 
 } // namespace dungeongame
