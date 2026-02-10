@@ -14,8 +14,10 @@
 #include <iostream>
 #include "Game.h"
 
+using namespace std;   // Use standard namespace
+
 int main() {
-    std::cout << "Dungeon Game\n";
+    cout << "Dungeon Game\n";
     dungeongame::Game game;
     game.run();
     return 0;

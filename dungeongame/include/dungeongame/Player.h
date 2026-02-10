@@ -11,20 +11,49 @@
 */
 #pragma once
 
+#include <string>
+
 #include "Character.h"
+#include "Inventory.h"
+
+// Instructor/student note (Week 02 - ADTs & Composition):
+// - To integrate ADTs into the gameplay, `Player` can *contain* an ADT such
+//   as `Inventory` (composition). This demonstrates how compound ADTs are
+//   used in larger systems (Player has-an Inventory).
+// - To keep the lab minimal, adding an Inventory member is optional for
+//   students; if you add it, include `#include "Inventory.h"` and add a
+//   member like `Inventory inventory;` to the `Player` class.
 
 namespace dungeongame {
 
 class Player : public Character {
-private:
-    int level;
-    int gold;
-public:
-    Player(const std::string& name = "Player");
+    private:
+        int level;
+        int gold;
+        int experience;
+        // Composition: player has an Inventory (Week 02 - ADTs & Pointers)
+        Inventory inventory;
+    public:
+        Player(const std::string& name = "Player");
 
-    // Movement within a bounded map (map bounds enforced by caller)
-    void move(int dx, int dy);
-    void displayStats() const;
-};
+        // Movement within a bounded map (map bounds enforced by caller)
+        void move(int dx, int dy);
+        void displayStats() const override;
+
+        // Progression
+        void gainExperience(int exp);
+        void levelUp();
+        void addGold(int amount);
+
+        // Inventory helpers (simple wrappers)
+        void addItem(const Item& item);
+        void showInventory() const;
+        bool usePotion(); // returns true if a potion was used
+
+        // Accessors
+        int getLevel() const;
+        int getGold() const;
+        int getExperience() const;
+    };
 
 } // namespace dungeongame

@@ -12,37 +12,91 @@
 #include "Player.h"
 #include <iostream>
 
+using namespace std; // Standard namespace
+
 namespace dungeongame {
 
-Player::Player(const std::string& name)
-    : Character(name, 20), level(1), gold(0) {
-    // start near top-left corner (0,0)
-    pos.x = 0;
-    pos.y = 0;
+// Inventory helper implementations
+void Player::addItem(const Item& item) {
+    inventory.add(item);
 }
 
-void Player::move(int dx, int dy) {
-    int newX = pos.x + dx;
-    int newY = pos.y + dy;
-
-    // Keep player inside the 0..4 range (matches Game map size)
-    if (newX < 0) newX = 0;
-    if (newY < 0) newY = 0;
-    if (newX > 4) newX = 4;
-    if (newY > 4) newY = 4;
-
-    pos.x = newX;
-    pos.y = newY;
+void Player::showInventory() const {
+    cout << "\n--- Inventory (" << inventory.size() << " items) ---\n";
+    for (size_t i = 0; i < inventory.size(); ++i) {
+        cout << i << ") " << inventory[i].name << " (value=" << inventory[i].value << ")\n";
+    }
 }
 
-void Player::displayStats() const {
-    std::cout << "\n--- Player Stats ---\n";
-    std::cout << "Name: " << name << "\n";
-    std::cout << "Health: " << health << "\n";
-    std::cout << "Level: " << level << "\n";
-    std::cout << "Gold: " << gold << "\n";
-    std::cout << "Position: (" << pos.x << ", " << pos.y << ")\n";
+bool Player::usePotion() {
+    if (inventory.size() == 0) return false;
+    // Use last item as potion: remove and apply its value as heal
+    Item it = inventory.removeAt(inventory.size() - 1);
+    int healAmount = it.value;
+    health += healAmount;
+    if (health > maxHealth) health = maxHealth;
+    cout << name << " used " << it.name << " and healed " << healAmount << " HP.\n";
+    return true;
 }
+
+
+    Player::Player(const string& name)
+        : Character(name, 20), level(1), gold(0), experience(0), inventory(4) {
+        // start near top-left corner (0,0)
+        pos.x = 0;
+        pos.y = 0;
+    }
+
+    void Player::move(int dx, int dy) {
+        int newX = pos.x + dx;
+        int newY = pos.y + dy;
+
+        // Keep player inside the 0..4 range (matches Game map size)
+        if (newX < 0) newX = 0;
+        if (newY < 0) newY = 0;
+        if (newX > 4) newX = 4;
+        if (newY > 4) newY = 4;
+
+        pos.x = newX;
+        pos.y = newY;
+    }
+
+    void Player::displayStats() const {
+        cout << "\n--- Player Stats ---\n";
+        cout << "Name: " << name << "\n";
+        cout << "Health: " << health << "\n";
+        cout << "Level: " << level << "\n";
+        cout << "Gold: " << gold << "\n";
+        cout << "Experience: " << experience << "\n";
+        cout << "Position: (" << pos.x << ", " << pos.y << ")\n";
+    }
+    
+    void Player::gainExperience(int exp) {
+        if (exp <= 0) return;
+        experience += exp;
+        // Simple threshold: 100 * level
+        while (experience >= level * 100) {
+            experience -= level * 100;
+            levelUp();
+        }
+    }
+
+    void Player::levelUp() {
+        ++level;
+        maxHealth += 10;
+        health = maxHealth; // Heal on level up
+        attack += 2;
+        defense += 1;
+        cout << name << " leveled up to " << level << "!\n";
+    }
+
+    void Player::addGold(int amount) {
+        if (amount > 0) gold += amount;
+    }
+
+    int Player::getLevel() const { return level; }
+    int Player::getGold() const { return gold; }
+    int Player::getExperience() const { return experience; }
 
 }
 

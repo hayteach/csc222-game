@@ -8,24 +8,36 @@
       "program": "${workspaceFolder}/dungeongame/bin/dungeongame",
       "args": [],
       "cwd": "${workspaceFolder}/dungeongame",
-      "preLaunchTask": "Make (project root)"
+      "preLaunchTask": "Make (project root)",
+      "osx": {
+        "program": "${workspaceFolder}/dungeongame/bin/dungeongame"
+      },
+      "linux": {
+        "program": "${workspaceFolder}/dungeongame/bin/dungeongame"
+      }
     },
     {
-      "name": "Run Tests",
+      "name": "Run Tests (LLDB - macOS/Linux)",
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/dungeongame/bin/combat_test",
       "args": [],
       "cwd": "${workspaceFolder}/dungeongame",
-      "preLaunchTask": "Make (project root)"
+      "preLaunchTask": "Make (project root)",
+      "osx": {
+        "program": "${workspaceFolder}/dungeongame/bin/combat_test"
+      },
+      "linux": {
+        "program": "${workspaceFolder}/dungeongame/bin/combat_test"
+      }
     },
     {
       "name": "C/C++ Runner: Debug Session",
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "${workspaceFolder}/dungeongame",
-      "program": "${workspaceFolder}/dungeongame/bin/dungeongame"
+      "cwd": "/Users/heidiahders/Documents/MendocinoCollege/Class/2026/Spring/CSC222/game/dungeongame/src",
+      "program": "/Users/heidiahders/Documents/MendocinoCollege/Class/2026/Spring/CSC222/game/dungeongame/src/build/Debug/outDebug"
     }
   ]
 }

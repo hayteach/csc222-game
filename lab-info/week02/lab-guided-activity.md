@@ -62,6 +62,31 @@ Optional: Add an `EnemyFactory` helper to create enemies by name.
 
 ---
 
+### Part F — Pointers & Dynamic Memory (15–20 min)
+
+In this part, students will practice raw pointers and dynamic allocation using a game-themed example. Treat `myVar` as an in-game quantity (for example, a number of potions or slots in a chest).
+
+Tasks (game-oriented):
+1. Prompt the user to input an integer value and store it in an `int myVar` (e.g., "How many potions do you want to prepare?").
+2. Create a pointer `iptr` and store the address of `myVar` in it (`int *iptr = &myVar;`).
+3. Print the value of `myVar`, the address stored in `iptr`, and the value pointed to by `iptr`.
+4. Create a dynamic integer array `myArray` of size `myVar` (`int *myArray = new int[myVar];`) and fill it with values `1..myVar` (you can think of these as potion IDs or slot numbers).
+5. Print the array values directly (`myArray[i]`) and then again using a pointer `ptrToMyArray` to access elements (`*(ptrToMyArray + i)`).
+6. Free any dynamically allocated memory with `delete[]` and, as an exercise in RAII, provide an alternate implementation using a small wrapper class with a destructor to ensure no leaks.
+
+In-game exercise (integrated into the project):
+- The game includes a built-in, playable demonstration of this lab under the main menu: **"8) Prepare Potions (Pointers demo)"**.
+  - Run the game (`make` then `./dungeongame/bin/dungeongame`) and choose option **8**.
+  - The demo reads an integer (`myVar`), uses a pointer to inspect and modify it, allocates a dynamic array and uses pointer arithmetic to modify elements, then transfers the results into the player's `Inventory` (RAII) and frees the dynamic memory with `delete[]`.
+  - After using the demo, students can view their inventory with **9) Show Inventory** and consume a potion with **10) Use Potion** to see gameplay effects.
+
+Instructor hints:
+- Encourage students to verify no leaks by running with sanitizers (e.g., `-fsanitize=address`) or by relying on the RAII wrapper's destructor.
+- Ask students to discuss why pointer arithmetic `*(ptr + i)` is equivalent to `ptr[i]` and how addresses change as `i` increases.
+- Suggested extensions: add a confirmation prompt to the demo, change the pointer operations (e.g., decrementing or shuffling values), write unit tests that validate inventory contents after running the demo, or integrate the potions into combat.
+
+---
+
 ## Assessment Checklist (what you must show the instructor)
 - [ ] Project builds (no compile errors)
 - [ ] `combat_test` runs and prints combat events
@@ -75,6 +100,13 @@ Optional: Add an `EnemyFactory` helper to create enemies by name.
 - This lab is intentionally small so students can focus on class design and methods.
 - Encourage pair programming and frequent commits.
 - Use `combat_test` as a quick unit test — extend it to check edge cases.
+
+### Style note: headers and `using namespace std;`
+- **Do not** put `using namespace std;` in header files. This causes the entire `std` namespace to be imported into every translation unit that includes the header, which can lead to name collisions, surprising compilation errors, and harder-to-debug code. Instead, prefer:
+  - Explicit `std::` qualifiers in headers (e.g., `std::string`) so the interface is clear and safe for all users.
+  - If desired, add `using namespace std;` or selective `using std::cout;` inside `.cpp` files only, where the effect is limited to a single translation unit.
+
+- **Include vs availability:** Always include the headers that declare the symbols your header uses (e.g., if `Player.h` uses `std::string` add `#include <string>` directly in `Player.h`). Relying on transitive includes (another header including `<string>` for you) is brittle — if that header changes, your header may fail to compile. Make headers self-sufficient: "include what you use."
 
 ---
 

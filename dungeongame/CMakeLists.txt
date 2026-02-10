@@ -14,8 +14,8 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # Collect sources
 file(GLOB ALL_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
-# Exclude main.cpp from the library
-list(REMOVE_ITEM ALL_SOURCES "${PROJECT_SOURCE_DIR}/src/main.cpp")
+# Exclude main.cpp and pointers_demo.cpp from the library (they are standalone programs)
+list(REMOVE_ITEM ALL_SOURCES "${PROJECT_SOURCE_DIR}/src/main.cpp" "${PROJECT_SOURCE_DIR}/src/pointers_demo.cpp")
 
 # Create a library from core sources (Game, Character, Player, Enemy)
 add_library(dungeongame_lib STATIC ${ALL_SOURCES})
@@ -31,6 +31,11 @@ add_executable(combat_test ${PROJECT_SOURCE_DIR}/tests/combat_test.cpp)
 target_link_libraries(combat_test PRIVATE dungeongame_lib)
 
 target_include_directories(combat_test PRIVATE ${PROJECT_SOURCE_DIR}/include)
+
+# Pointers demo (interactive) - week02 scaffold
+add_executable(pointers_demo ${PROJECT_SOURCE_DIR}/src/pointers_demo.cpp)
+# Pointers demo doesn't depend on the library, but keep includes consistent
+target_include_directories(pointers_demo PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 # Optional: enable warnings on both targets
 if(MSVC)
