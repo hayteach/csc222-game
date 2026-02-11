@@ -1,43 +1,44 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Launch Game (interactive)",
-      "type": "lldb",
-      "request": "launch",
-      "program": "${workspaceFolder}/dungeongame/bin/dungeongame",
-      "args": [],
-      "cwd": "${workspaceFolder}/dungeongame",
-      "preLaunchTask": "Make (project root)",
-      "osx": {
-        "program": "${workspaceFolder}/dungeongame/bin/dungeongame"
-      },
-      "linux": {
-        "program": "${workspaceFolder}/dungeongame/bin/dungeongame"
-      }
-    },
-    {
-      "name": "Run Tests (LLDB - macOS/Linux)",
-      "type": "lldb",
-      "request": "launch",
-      "program": "${workspaceFolder}/dungeongame/bin/combat_test",
-      "args": [],
-      "cwd": "${workspaceFolder}/dungeongame",
-      "preLaunchTask": "Make (project root)",
-      "osx": {
-        "program": "${workspaceFolder}/dungeongame/bin/combat_test"
-      },
-      "linux": {
-        "program": "${workspaceFolder}/dungeongame/bin/combat_test"
-      }
-    },
-    {
-      "name": "C/C++ Runner: Debug Session",
-      "type": "lldb",
-      "request": "launch",
-      "args": [],
-      "cwd": "/Users/heidiahders/Documents/MendocinoCollege/Class/2026/Spring/CSC222/game/dungeongame/src",
-      "program": "/Users/heidiahders/Documents/MendocinoCollege/Class/2026/Spring/CSC222/game/dungeongame/src/build/Debug/outDebug"
-    }
-  ]
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug dungeongame (LLDB - MacOS/Linux)",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/dungeongame",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build: cross-platform",
+            "terminal": "integrated",
+            "sourceLanguages": ["cpp"]
+        },
+        {
+            "name": "Debug dungeongame (GDB)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/dungeongame",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build: cross-platform",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "externalConsole": false
+        },
+        {
+            "name": "Debug dungeongame (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/dungeongame.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build: cross-platform",
+            "externalConsole": false
+        }
+    ]
 }

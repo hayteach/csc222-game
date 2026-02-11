@@ -41,7 +41,7 @@ bool Player::usePotion() {
 
 
     Player::Player(const string& name)
-        : Character(name, 20), level(1), gold(0), experience(0), inventory(4) {
+        : Character(name, 20), level(1), gold(0), experience(0), inventory() {
         // start near top-left corner (0,0)
         pos.x = 0;
         pos.y = 0;

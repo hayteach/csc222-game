@@ -62,6 +62,7 @@ void Game::displayMenu() const {
     cout << "8) Prepare Potions (Pointers demo)\n";
     cout << "9) Show Inventory\n";
     cout << "10) Use Potion\n";
+    cout << "11) Linked List Demo (Template class demo)\n";
     cout << "Choose an action: ";
 }
 
@@ -91,6 +92,11 @@ void Game::processChoice(int choice) {
         }
         case 10: {
             if (!player.usePotion()) cout << "No potions available." << endl;
+            break;
+        }
+        case 11: {
+            // Template class & linked list demo integrated into game
+            runLinkedListDemo();
             break;
         }
         default: cout << "Invalid choice." << endl; break;
@@ -207,6 +213,76 @@ void Game::runPointersDemo() {
 
     cout << "Added " << myVar << " potions to your inventory. Use 'Show Inventory' and 'Use Potion' from the main menu.\n";
 
+}
+
+void Game::runLinkedListDemo() {
+    cout << "\n--- Linked List Demo (Template Class) ---" << endl;
+    cout << "This demo shows how to use a template class for a generic linked list." << endl;
+    cout << "We'll create linked lists of different types and demonstrate operations." << endl;
+
+    // Demo 1: Linked list of integers
+    cout << "\n1. Creating a linked list of integers:" << endl;
+    LinkedList<int> intList;
+    intList.append(10);
+    intList.append(20);
+    intList.append(30);
+    cout << "Added 10, 20, 30: ";
+    intList.print();
+
+    cout << "Prepending 5: ";
+    intList.prepend(5);
+    intList.print();
+
+    cout << "Size: " << intList.size() << endl;
+    cout << "Element at index 2: " << intList.get(2) << endl;
+
+    // Demo 2: Linked list of strings
+    cout << "\n2. Creating a linked list of strings:" << endl;
+    LinkedList<std::string> stringList;
+    stringList.append("Hello");
+    stringList.append("Template");
+    stringList.append("World");
+    cout << "Added 'Hello', 'Template', 'World': ";
+    stringList.print();
+
+    // Demo 3: Linked list of custom objects (Items)
+    cout << "\n3. Creating a linked list of Items (custom objects):" << endl;
+    LinkedList<Item> itemList;
+    itemList.append(Item("Sword", 100));
+    itemList.append(Item("Shield", 80));
+    itemList.append(Item("Potion", 25));
+    cout << "Added Sword ($100), Shield ($80), Potion ($25):" << endl;
+    cout << "Linked list contents:" << endl;
+    for (size_t i = 0; i < itemList.size(); ++i) {
+        const Item& item = itemList.get(i);
+        cout << "  " << item.name << " (value: $" << item.value << ")" << endl;
+    }
+
+    // Demo 4: Using range-based for loop (iterator)
+    cout << "\n4. Using range-based for loop to traverse the string list:" << endl;
+    for (const std::string& str : stringList) {
+        cout << str << " ";
+    }
+    cout << endl;
+
+    // Demo 5: Removing elements
+    cout << "\n5. Removing element at index 1 from integer list:" << endl;
+    cout << "Before removal: ";
+    intList.print();
+    intList.removeAt(1);
+    cout << "After removal: ";
+    intList.print();
+
+    // Demo 6: Copying linked lists
+    cout << "\n6. Copying linked list (deep copy):" << endl;
+    LinkedList<std::string> copiedList = stringList;
+    cout << "Original: ";
+    stringList.print();
+    cout << "Copy: ";
+    copiedList.print();
+
+    cout << "\nTemplate classes allow us to create reusable data structures that work with any type!" << endl;
+    cout << "This linked list template can store integers, strings, or any custom class." << endl;
 }
 
 void Game::run() {

@@ -91,11 +91,11 @@ if(BUILD_TESTS)
     add_test(NAME combat_test COMMAND combat_test_exe)
 endif()
 
-# Note: the pointers demo has been integrated into the main game as
-# Game::runPointersDemo() (accessible from the in-game menu). The standalone
-# `pointers_demo.cpp` source is deprecated and is no longer built as a
-# separate executable to avoid confusion and duplicate main() definitions.
-# If you want to keep a standalone demo, add a separate target here.
+# Pointers demo (interactive)
+add_executable(pointers_demo_exe src/pointers_demo.cpp)
+set_target_properties(pointers_demo_exe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR}
+)
 
 # Helpful messages for students
 message(STATUS "dungeongame: build output goes to: ${BIN_DIR}")

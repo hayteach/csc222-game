@@ -12,7 +12,7 @@ using namespace std;
 
 // Forward declarations for week02 tests
 extern bool test_inventory_add_and_remove();
-extern bool test_inventory_pointer_traversal();
+extern bool test_inventory_template_iteration();
 extern bool test_enemygroup_add_and_traverse();
 
 // Helper: compute damage as in Game::processCombat
@@ -86,7 +86,7 @@ extern "C" int main() {
 
     // Week 02: ADT tests
     if (!test_inventory_add_and_remove()) { cerr << "FAIL: test_inventory_add_and_remove\n"; return 1; }
-    if (!test_inventory_pointer_traversal()) { cerr << "FAIL: test_inventory_pointer_traversal\n"; return 1; }
+    if (!test_inventory_template_iteration()) { cerr << "FAIL: test_inventory_template_iteration\n"; return 1; }
     if (!test_enemygroup_add_and_traverse()) { cerr << "FAIL: test_enemygroup_add_and_traverse\n"; return 1; }
 
     cout << "combat_test: PASS\n";

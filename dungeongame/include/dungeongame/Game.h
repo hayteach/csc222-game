@@ -15,6 +15,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Inventory.h"
+#include "LinkedList.h"
 
 namespace dungeongame {
 
@@ -39,6 +40,9 @@ private:
 
     // Pointers & dynamic memory demo (game-integrated)
     void runPointersDemo();
+
+    // Template class & linked list demo (game-integrated)
+    void runLinkedListDemo();
 
 public:
     Game();

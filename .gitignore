@@ -15,3 +15,11 @@ dungeongame/scripts/
 /build/
 CMakeFiles/
 compile_commands.json
+
+# Local build outputs and helpers
+/bin/
+build.bat
+build.ps1
+build.py
+scripts/run_build.sh
+scripts/build_project.sh

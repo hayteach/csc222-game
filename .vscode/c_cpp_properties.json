@@ -1,19 +1,35 @@
 {
   "configurations": [
     {
-      "name": "macos-clang-x64",
+      "name": "macOS",
       "includePath": [
-        "${workspaceFolder}/**",
         "${workspaceFolder}/**/include",
-        "${workspaceFolder}/**/src"
+        "${workspaceFolder}/**/include/dungeongame",
+        "${workspaceFolder}/**"
       ],
-      "compilerPath": "/usr/bin/clang",
-      "cStandard": "${default}",
-      "cppStandard": "${default}",
+      "defines": [],
+      "macFrameworkPath": [
+        "/System/Library/Frameworks",
+        "/Library/Frameworks"
+      ],
+      "compilerPath": "/usr/bin/clang++",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
       "intelliSenseMode": "macos-clang-x64",
-      "compilerArgs": [
-        ""
-      ]
+      "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+    },
+    {
+      "name": "Windows",
+      "includePath": [
+        "${workspaceFolder}/**/include",
+        "${workspaceFolder}/**/include/dungeongame",
+        "${workspaceFolder}/**"
+      ],
+      "defines": [],
+      "compilerPath": "",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "windows-msvc-x64"
     }
   ],
   "version": 4

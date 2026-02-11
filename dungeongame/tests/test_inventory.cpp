@@ -15,21 +15,21 @@ bool test_inventory_add_and_remove() {
     return true;
 }
 
-bool test_inventory_pointer_traversal() {
+bool test_inventory_template_iteration() {
     Inventory inv;
     inv.add(Item("A", 1));
     inv.add(Item("B", 2));
     inv.add(Item("C", 3));
-    // rawData() exposes the Inventory's contiguous storage (an array owned by
-    // the Inventory). The pointer `p` points to the first element and pointer
-    // arithmetic like `(p + 1)` advances to the next `Item` in memory. This
-    // is a hands-on demonstration of contiguous ADTs and pointer traversal.
-    // IMPORTANT: students should be aware of bounds and lifetime (don't use
-    // the pointer after the Inventory is modified or destroyed).
-    const Item* p = inv.rawData();
-    if (p == nullptr) return false;
-    if ((p+1)->name != "B") return false;
-    if ((p+2)->value != 3) return false;
-    return true;
+    
+    // Demonstrate template-based iteration using range-based for loop
+    // This shows how templates enable modern C++ iteration patterns
+    int count = 0;
+    for (const Item& item : inv.getItems()) {
+        if (count == 0 && item.name != "A") return false;
+        if (count == 1 && item.name != "B") return false;
+        if (count == 2 && item.name != "C") return false;
+        count++;
+    }
+    return count == 3;
 }
 
