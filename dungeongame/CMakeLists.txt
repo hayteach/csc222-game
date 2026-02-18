@@ -40,6 +40,9 @@ set(DUNGEON_SOURCES
     src/Player.cpp
     src/Enemy.cpp
     src/Inventory.cpp
+    src/EnemySpawner.cpp
+    src/ActionHistory.cpp
+    src/SpellEvaluator.cpp
 )
 
 # Create static library for core game code
@@ -87,6 +90,23 @@ if(BUILD_TESTS)
     set_target_properties(combat_test_exe PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR}
     )
+
+    # Week 04 unit tests
+    add_executable(test_enemy_spawner tests/test_enemy_spawner.cpp)
+    target_link_libraries(test_enemy_spawner PRIVATE dungeongame_lib)
+    set_target_properties(test_enemy_spawner PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
+    add_test(NAME test_enemy_spawner COMMAND test_enemy_spawner)
+
+    add_executable(test_action_undo tests/test_action_undo.cpp)
+    target_link_libraries(test_action_undo PRIVATE dungeongame_lib)
+    set_target_properties(test_action_undo PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
+    add_test(NAME test_action_undo COMMAND test_action_undo)
+
+    add_executable(test_spell_eval tests/test_spell_eval.cpp)
+    target_link_libraries(test_spell_eval PRIVATE dungeongame_lib)
+    set_target_properties(test_spell_eval PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
+    add_test(NAME test_spell_eval COMMAND test_spell_eval)
+
     enable_testing()
     add_test(NAME combat_test COMMAND combat_test_exe)
 endif()

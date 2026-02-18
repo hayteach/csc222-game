@@ -21,6 +21,20 @@ void Player::addItem(const Item& item) {
     inventory.add(item);
 }
 
+void Player::addItemAt(size_t idx, const Item& item) {
+    inventory.insertAt(idx, item);
+}
+
+Item Player::removeItemAt(size_t idx) {
+    return inventory.removeAt(idx);
+}
+
+void Player::setHealth(int newHealth) {
+    if (newHealth < 0) newHealth = 0;
+    if (newHealth > maxHealth) newHealth = maxHealth;
+    health = newHealth;
+}
+
 void Player::showInventory() const {
     cout << "\n--- Inventory (" << inventory.size() << " items) ---\n";
     for (size_t i = 0; i < inventory.size(); ++i) {
@@ -28,13 +42,24 @@ void Player::showInventory() const {
     }
 }
 
+size_t Player::inventorySize() const { return inventory.size(); }
+
+Item& Player::operator[](size_t idx) { return inventory[idx]; }
+const Item& Player::operator[](size_t idx) const { return inventory[idx]; }
+
 bool Player::usePotion() {
+    Item tmp; int heal = 0;
+    return usePotionAndGet(tmp, heal);
+}
+
+bool Player::usePotionAndGet(Item& outItem, int& healAmount) {
     if (inventory.size() == 0) return false;
     // Use last item as potion: remove and apply its value as heal
     Item it = inventory.removeAt(inventory.size() - 1);
-    int healAmount = it.value;
+    healAmount = it.value;
     health += healAmount;
     if (health > maxHealth) health = maxHealth;
+    outItem = it;
     cout << name << " used " << it.name << " and healed " << healAmount << " HP.\n";
     return true;
 }

@@ -138,6 +138,25 @@ public:
         return listSize == 0;
     }
 
+    // Insert element at index (0..size). If index==size => append.
+    void insertAt(size_t index, const T& data) {
+        if (index > listSize) throw std::out_of_range("Index out of range");
+        if (index == 0) {
+            prepend(data);
+            return;
+        }
+        if (index == listSize) {
+            append(data);
+            return;
+        }
+        Node<T>* newNode = new Node<T>(data);
+        Node<T>* current = head;
+        for (size_t i = 0; i < index - 1; ++i) current = current->next;
+        newNode->next = current->next;
+        current->next = newNode;
+        listSize++;
+    }
+
     // Clear the list
     void clear() {
         Node<T>* current = head;

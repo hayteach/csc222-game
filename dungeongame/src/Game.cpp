@@ -11,6 +11,10 @@
 */
 #include "Game.h"
 #include "Enemy.h"
+#include "EnemySpawner.h"
+#include "ActionHistory.h"
+#include "SpellEvaluator.h"
+
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -63,15 +67,42 @@ void Game::displayMenu() const {
     cout << "9) Show Inventory\n";
     cout << "10) Use Potion\n";
     cout << "11) Linked List Demo (Template class demo)\n";
+    cout << "12) Spawn Control (skip N)\n";
+    cout << "13) Action History (undo)\n";
+    cout << "14) Cast Postfix Spell\n";
+    cout << "15) Show Spawn Queue (debug)\n";
+    cout << "16) Show Action History (debug)\n";
+    cout << "17) Pick up item (demo)\n";
+    cout << "18) Drop item (by index)\n";
     cout << "Choose an action: ";
 }
 
 void Game::processChoice(int choice) {
     switch (choice) {
-        case 1: player.move(0, -1); break;
-        case 2: player.move(0, 1); break;
-        case 3: player.move(-1, 0); break;
-        case 4: player.move(1, 0); break;
+        case 1: {
+            Position prev = player.getPosition();
+            player.move(0, -1);
+            history.pushMove(prev);
+            break;
+        }
+        case 2: {
+            Position prev = player.getPosition();
+            player.move(0, 1);
+            history.pushMove(prev);
+            break;
+        }
+        case 3: {
+            Position prev = player.getPosition();
+            player.move(-1, 0);
+            history.pushMove(prev);
+            break;
+        }
+        case 4: {
+            Position prev = player.getPosition();
+            player.move(1, 0);
+            history.pushMove(prev);
+            break;
+        }
         case 5: player.displayStats(); break;
         case 6: running = false; break;
         case 7: {
@@ -91,7 +122,14 @@ void Game::processChoice(int choice) {
             break;
         }
         case 10: {
-            if (!player.usePotion()) cout << "No potions available." << endl;
+            int prevH = player.getHealth();
+            Item used;
+            int healAmt = 0;
+            if (!player.usePotionAndGet(used, healAmt)) {
+                cout << "No potions available." << endl;
+            } else {
+                history.pushUsePotion(used, prevH);
+            }
             break;
         }
         case 11: {
@@ -99,7 +137,25 @@ void Game::processChoice(int choice) {
             runLinkedListDemo();
             break;
         }
-        default: cout << "Invalid choice." << endl; break;
+        case 17: {
+            handlePickItem();
+            break;
+        }
+        case 18: {
+            handleDropItem();
+            break;
+        }
+        default:
+            if (choice >= 12 && choice <= 16) {
+                if (choice == 12) handleSpawnSkip();
+                else if (choice == 13) handleUndo();
+                else if (choice == 14) handleCastSpell();
+                else if (choice == 15) showSpawnQueue();
+                else if (choice == 16) showActionHistory();
+            } else {
+                cout << "Invalid choice." << endl;
+            }
+            break;
     }
     placePlayerOnMap();
 }
@@ -284,6 +340,121 @@ void Game::runLinkedListDemo() {
     cout << "\nTemplate classes allow us to create reusable data structures that work with any type!" << endl;
     cout << "This linked list template can store integers, strings, or any custom class." << endl;
 }
+
+// ---------------- Week 04 helper implementations ----------------
+
+void Game::handleSpawnSkip()
+{
+    cout << "Enter number of enemies to skip (n): ";
+    int n = 0;
+    if (!(cin >> n)) {
+        cin.clear(); cin.ignore(10000, '\n');
+        cout << "Invalid input." << endl;
+        return;
+    }
+    spawner.skipEnemies(n);
+    cout << "Skipped " << n << " enemies.\n";
+}
+
+void Game::handleUndo()
+{
+    cout << "Undo how many actions? (default 1): ";
+    int k = 1;
+    if (!(cin >> k)) {
+        cin.clear(); cin.ignore(10000, '\n');
+        k = 1;
+    }
+    int undone = history.undoLast(k, player);
+    cout << "Undone " << undone << " action(s).\n";
+}
+
+void Game::handleCastSpell()
+{
+    cout << "Enter postfix expression (tokens separated by spaces), e.g. '6 3 + 2 *': ";
+    cin.ignore(10000, '\n');
+    std::string expr;
+    std::getline(cin, expr);
+    try {
+        int val = SpellEvaluator::evaluatePostfix(expr);
+
+        // provide multiple effects for demo: ask user which effect to apply
+        cout << "Choose effect: 1) Heal player  2) Give gold  3) Damage enemy (demo)\n";
+        cout << "Enter choice (1-3): ";
+        int eff = 1;
+        if (!(std::cin >> eff)) { std::cin.clear(); std::cin.ignore(10000, '\n'); eff = 1; }
+
+        switch (eff) {
+            case 1:
+                cout << "Spell evaluated to: " << val << " (healing player)\n";
+                player.heal(val);
+                break;
+            case 2:
+                cout << "Spell evaluated to: " << val << " (granting gold)\n";
+                player.addGold(val);
+                break;
+            case 3:
+                cout << "Spell evaluated to: " << val << " (demo damage to next spawned enemy)\n";
+                if (spawner.hasEnemies()) {
+                    Enemy e = spawner.nextEnemy();
+                    e.takeDamage(val);
+                    if (e.isAlive()) {
+                        cout << e.getName() << " survived the blast (hp=" << e.getHealth() << ") and is re-queued.\n";
+                        spawner.addEnemy(e);
+                    } else {
+                        cout << e.getName() << " was destroyed by the spell!\n";
+                    }
+                } else {
+                    cout << "No enemies to affect.\n";
+                }
+                break;
+            default:
+                cout << "Unknown effect; applying heal by default." << endl;
+                player.heal(val);
+                break;
+        }
+    } catch (const std::exception& ex) {
+        cout << "Error evaluating expression: " << ex.what() << "\n";
+    }
+}
+
+void Game::handlePickItem()
+{
+    cout << "Enter item name: ";
+    std::string name;
+    if (!(std::cin >> name)) { std::cin.clear(); std::cin.ignore(10000, '\n'); std::cout << "Invalid name." << std::endl; return; }
+    cout << "Enter item value: ";
+    int v = 0;
+    if (!(std::cin >> v)) { std::cin.clear(); std::cin.ignore(10000, '\n'); v = 1; }
+
+    Item it(name, v);
+    player.addItem(it);
+    history.pushPick(it, player.inventorySize() - 1);
+    cout << "Picked up: " << it.name << " (" << it.value << ")\n";
+}
+
+void Game::handleDropItem()
+{
+    player.showInventory();
+    cout << "Enter index of item to drop: ";
+    int idx = -1;
+    if (!(std::cin >> idx)) { std::cin.clear(); std::cin.ignore(10000, '\n'); cout << "Invalid input." << endl; return; }
+    if (idx < 0 || static_cast<size_t>(idx) >= player.inventorySize()) { cout << "Index out of range." << endl; return; }
+
+    Item removed = player.removeItemAt(static_cast<size_t>(idx));
+    history.pushDrop(removed, static_cast<size_t>(idx));
+    cout << "Dropped: " << removed.name << "\n";
+}
+
+void Game::showSpawnQueue() const
+{
+    spawner.showQueue();
+}
+
+void Game::showActionHistory() const
+{
+    history.showHistory();
+}
+
 
 void Game::run() {
     // seed rand for flee chance

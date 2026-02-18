@@ -17,6 +17,11 @@
 #include "Inventory.h"
 #include "LinkedList.h"
 
+// Week 04 feature headers
+#include "EnemySpawner.h"
+#include "ActionHistory.h"
+#include "SpellEvaluator.h"
+
 namespace dungeongame {
 
 // Simple game shell for Week 1
@@ -28,6 +33,10 @@ private:
     static const int MAP_WIDTH = 5;
     static const int MAP_HEIGHT = 5;
     char map[MAP_HEIGHT][MAP_WIDTH];
+
+    // Week 04 additions
+    EnemySpawner spawner;
+    ActionHistory history;
 
     void initMap();
     void placePlayerOnMap();
@@ -43,6 +52,15 @@ private:
 
     // Template class & linked list demo (game-integrated)
     void runLinkedListDemo();
+
+    // Week 04 helpers
+    void handleSpawnSkip();
+    void handleUndo();
+    void handleCastSpell();
+    void handlePickItem();
+    void handleDropItem();
+    void showSpawnQueue() const;
+    void showActionHistory() const;
 
 public:
     Game();

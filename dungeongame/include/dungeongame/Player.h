@@ -47,8 +47,17 @@ class Player : public Character {
 
         // Inventory helpers (simple wrappers)
         void addItem(const Item& item);
+        void addItemAt(size_t idx, const Item& item);
+        Item removeItemAt(size_t idx);
         void showInventory() const;
+        size_t inventorySize() const;
+        Item& operator[](size_t idx);
+        const Item& operator[](size_t idx) const;
         bool usePotion(); // returns true if a potion was used
+        bool usePotionAndGet(Item& outItem, int& healAmount); // returns potion used and heal amount
+
+        // Health helpers (used by undo)
+        void setHealth(int newHealth);
 
         // Accessors
         int getLevel() const;

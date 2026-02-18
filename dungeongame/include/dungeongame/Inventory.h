@@ -53,6 +53,7 @@ public:
     Inventory() = default;
 
     void add(const Item& item) { items.append(item); }
+    void insertAt(size_t idx, const Item& item) { items.insertAt(idx, item); }
     Item removeAt(size_t idx) { 
         Item removed = items.get(idx);
         items.removeAt(idx);
