@@ -1,11 +1,11 @@
 {
   "configurations": [
     {
-      "name": "macOS",
+      "name": "macos-clang-x64",
       "includePath": [
+        "${workspaceFolder}/**",
         "${workspaceFolder}/**/include",
-        "${workspaceFolder}/**/include/dungeongame",
-        "${workspaceFolder}/**"
+        "${workspaceFolder}/**/include/dungeongame"
       ],
       "defines": [],
       "macFrameworkPath": [

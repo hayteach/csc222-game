@@ -33,7 +33,7 @@
             "name": "Debug dungeongame (Windows)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/dungeongame.exe",
+            "program": "${workspaceFolder}/build/bin/${file}.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
