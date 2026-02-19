@@ -7,6 +7,8 @@
 
 namespace dungeongame {
 
+class Player; // forward declaration (header-only dependency)
+
 // Lightweight Action + history for undoing simple player actions.
 // Supports Move, Pick, Drop, and UsePotion actions.
 class ActionHistory {
