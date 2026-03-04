@@ -1,5 +1,5 @@
-#include "dungeongame/ActionHistory.h"
-#include "dungeongame/Player.h"
+#include "ActionHistory.h"
+#include "Player.h"
 #include <iostream>
 
 namespace dungeongame {

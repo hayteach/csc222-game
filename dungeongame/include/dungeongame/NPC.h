@@ -1,10 +1,10 @@
-/* File: Enemy.h
+/* File: NPC.h (renamed from Enemy.h)
    Name: CSC 222 Students
    Date: 01/28/2026
    Last Edit: 01/28/2026
    Course: CSC 222 - Programming and Algorithms II
-   Desc: Declaration for Character base class used in the Dungeon of Data Structures game.
-    Usage: Include this header when using Character or derived classes.
+   Desc: Declaration for NPC class derived from Character used in the Dungeon game.
+    Usage: Include this header when using NPC or derived classes.
   
         Other files required: Character.h, Player.h, Game.h, Game.cpp,
                               Character.cpp, Player.cpp
@@ -17,14 +17,14 @@
 
 namespace dungeongame {
 
-class Enemy : public Character {
+class NPC : public Character {
 private:
     int attackPower;
     int expReward;
     int goldReward;
 public:
     // signature: name, hp, attack, defense, exp reward, gold reward
-    Enemy(const std::string& name = "Enemy", int hp = 10, int attack = 1, int def = 0,
+    NPC(const std::string& name = "NPC", int hp = 10, int attack = 1, int def = 0,
           int exp = 20, int gold = 5);
 
     int getAttackPower() const;

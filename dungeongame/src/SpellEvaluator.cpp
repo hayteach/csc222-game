@@ -1,4 +1,4 @@
-#include "dungeongame/SpellEvaluator.h"
+#include "SpellEvaluator.h"
 #include <sstream>
 #include <stack>
 #include <stdexcept>

@@ -1,4 +1,4 @@
-#include "EnemyGroup.h"
+#include "NPCGroup.h"
 
 // Implementation note (Week 02): this translation unit is intentionally
 // minimal because the ADT's operations are provided inline via the header

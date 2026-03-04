@@ -7,11 +7,11 @@
     Usage: Compile and run the program to start the game.
   
     Other files required: Character.h, Player.h, Game.h,
-                              Character.cpp, Player.cpp, Enemy.cpp, Enemy.h
+                              Character.cpp, Player.cpp, NPC.cpp, NPC.h
 */
 #include "Game.h"
-#include "Enemy.h"
-#include "EnemySpawner.h"
+#include "NPC.h"
+#include "NPCSpawner.h"
 #include "ActionHistory.h"
 #include "SpellEvaluator.h"
 
@@ -74,6 +74,8 @@ void Game::displayMenu() const {
     cout << "16) Show Action History (debug)\n";
     cout << "17) Pick up item (demo)\n";
     cout << "18) Drop item (by index)\n";
+    cout << "19) NPC pointer container demo\n";
+    cout << "20) NPC spawner demo\n";
     cout << "Choose an action: ";
 }
 
@@ -107,7 +109,7 @@ void Game::processChoice(int choice) {
         case 6: running = false; break;
         case 7: {
             // Demo encounter: spawn a goblin and start combat
-            Enemy goblin("Goblin", 10, 3, 0, 10, 5);
+             NPC goblin("Goblin", 10, 3, 0, 10, 5);
             cout << "You encounter a Goblin!" << endl;
             processCombat(goblin);
             break;
@@ -145,6 +147,22 @@ void Game::processChoice(int choice) {
             handleDropItem();
             break;
         }
+        case 19: {
+            // NPC pointer container demonstration
+            runNPCGroupDemo();
+            break;
+        }
+        case 20: {
+            // NPC spawner pointer demonstration
+            runNPCSpawnerDemo();
+            break;
+        }
+            // NPC spawner pointer demonstration
+            runNPCSpawnerDemo();
+            break;
+        }
+
+        }
         default:
             if (choice >= 12 && choice <= 16) {
                 if (choice == 12) handleSpawnSkip();
@@ -160,7 +178,7 @@ void Game::processChoice(int choice) {
     placePlayerOnMap();
 }
 
-void Game::processCombat(Enemy& enemy) {
+void Game::processCombat(NPC& enemy) {
     // simple turn-based loop
     while (player.isAlive() && enemy.isAlive()) {
         cout << "\n--- Combat ---" << endl;
@@ -395,13 +413,15 @@ void Game::handleCastSpell()
             case 3:
                 cout << "Spell evaluated to: " << val << " (demo damage to next spawned enemy)\n";
                 if (spawner.hasEnemies()) {
-                    Enemy e = spawner.nextEnemy();
-                    e.takeDamage(val);
-                    if (e.isAlive()) {
-                        cout << e.getName() << " survived the blast (hp=" << e.getHealth() << ") and is re-queued.\n";
+                    NPC* e = spawner.nextEnemy();
+                    e->takeDamage(val);
+                    if (e->isAlive()) {
+                        cout << e->getName() << " survived the blast (hp=" << e->getHealth() << ") and is re-queued.\n";
                         spawner.addEnemy(e);
                     } else {
-                        cout << e.getName() << " was destroyed by the spell!\n";
+                        cout << e->getName() << " was destroyed by the spell!\n";
+                        delete e; 
+
                     }
                 } else {
                     cout << "No enemies to affect.\n";
@@ -477,4 +497,3 @@ void Game::run() {
 
 }
 
-// appended namespace close

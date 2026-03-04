@@ -13,12 +13,12 @@
 
 #include <string>
 #include "Player.h"
-#include "Enemy.h"
+#include "NPC.h"          // renamed from Enemy.h
 #include "Inventory.h"
 #include "LinkedList.h"
 
 // Week 04 feature headers
-#include "EnemySpawner.h"
+#include "NPCSpawner.h"    // renamed from EnemySpawner.h
 #include "ActionHistory.h"
 #include "SpellEvaluator.h"
 
@@ -35,7 +35,7 @@ private:
     char map[MAP_HEIGHT][MAP_WIDTH];
 
     // Week 04 additions
-    EnemySpawner spawner;
+    NPCSpawner spawner;
     ActionHistory history;
 
     void initMap();
@@ -45,7 +45,7 @@ private:
     void processChoice(int choice);
 
     // Combat handling
-    void processCombat(Enemy& enemy);
+    void processCombat(NPC& enemy);
 
     // Pointers & dynamic memory demo (game-integrated)
     void runPointersDemo();
