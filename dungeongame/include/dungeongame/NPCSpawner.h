@@ -9,8 +9,8 @@ namespace dungeongame {
 
 // Spawn-queue manager using pointers
 class NPCSpawner {
-    NPCSpawner();
-    NPCSpawner() = default;
+public:
+    NPCSpawner(); // default constructor (implemented in .cpp)
 
     void addEnemy(NPC* e) {
         spawnQueue.push_back(e);
@@ -32,7 +32,6 @@ class NPCSpawner {
             NPC* e = spawnQueue.front();
             spawnQueue.pop_front();
             delete e;
-      
         }
     }
 

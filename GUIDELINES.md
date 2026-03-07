@@ -62,4 +62,57 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ---
 
+## 5. Building & Running with build.py
+
+**Cross-platform build launcher for convenience and consistency.**
+
+The project includes `build.py`, a Python 3 script that provides a unified interface for building and running across Windows, macOS, and Linux. Use it instead of platform-specific commands.
+
+### Usage
+
+```bash
+python3 build.py [action]
+```
+
+### Actions
+
+- **`build`** (default) – compile the project and output binary to `bin/`
+  ```bash
+  python3 build.py build
+  # or simply:
+  python3 build.py
+  ```
+
+- **`run`** – execute the existing binary (must build first)
+  ```bash
+  python3 build.py run
+  ```
+
+- **`build_run`** – compile and immediately execute
+  ```bash
+  python3 build.py build_run
+  ```
+
+### How It Works
+
+- **macOS/Linux:** automatically detects and uses `make` (preferred) or falls back to `scripts/build_project.sh`.
+- **Windows:** uses PowerShell `build.ps1` (preferred) or `build.bat`, with automatic WSL/Git Bash fallback.
+- Auto-detects source directory, app name, and include paths from your project structure.
+- Binary output location: `bin/<app_name>` (or `.exe` on Windows).
+
+### Examples
+
+```bash
+# Build only
+python3 build.py
+
+# Build and run immediately
+python3 build.py build_run
+
+# Run previous build without rebuilding
+python3 build.py run
+```
+
+---
+
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.

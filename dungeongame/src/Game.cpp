@@ -19,6 +19,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <vector>
+#include <limits>
 using namespace std;
 
 namespace dungeongame {
@@ -27,6 +29,7 @@ Game::Game()
     : running(true), player("Adventurer") {
     initMap();
     placePlayerOnMap();
+    initializeGrimoire();
 }
 
 void Game::initMap() {
@@ -76,6 +79,10 @@ void Game::displayMenu() const {
     cout << "18) Drop item (by index)\n";
     cout << "19) NPC pointer container demo\n";
     cout << "20) NPC spawner demo\n";
+    cout << "21) Linked String Lab (lab07)\n";
+    cout << "22) Linked Bag Demo (hw05)\n";
+    cout << "23) View Grimoire (learned spells)\n";
+    cout << "24) Check Loot Bag\n";
     cout << "Choose an action: ";
 }
 
@@ -157,11 +164,21 @@ void Game::processChoice(int choice) {
             runNPCSpawnerDemo();
             break;
         }
-            // NPC spawner pointer demonstration
-            runNPCSpawnerDemo();
+        case 21: {
+            runLinkedStringLab();
             break;
         }
-
+        case 22: {
+            runBagDemo();
+            break;
+        }
+        case 23: {
+            viewGrimoire();
+            break;
+        }
+        case 24: {
+            handleLootBag();
+            break;
         }
         default:
             if (choice >= 12 && choice <= 16) {
@@ -204,6 +221,13 @@ void Game::processCombat(NPC& enemy) {
                 cout << "You defeated the " << enemy.getName() << "!" << endl;
                 player.gainExperience(enemy.getExpReward());
                 player.addGold(enemy.getGoldReward());
+                
+                // Create and add loot to the loot bag
+                int lootValue = 10 + (rand() % 30);
+                Item loot(enemy.getName() + " Loot", lootValue);
+                lootBag.add(loot);
+                cout << "  *** " << loot.name << " (value: " << loot.value << ") dropped into loot bag! ***" << endl;
+                
                 break;
             }
             // enemy retaliates
@@ -358,7 +382,73 @@ void Game::runLinkedListDemo() {
     cout << "\nTemplate classes allow us to create reusable data structures that work with any type!" << endl;
     cout << "This linked list template can store integers, strings, or any custom class." << endl;
 }
+// ------------------------------------------------------
+// Lab 07 activity: Linked String ADT demonstration
+// ------------------------------------------------------
 
+void Game::runLinkedStringLab() {
+    using namespace std;
+    cout << "\n--- Linked String Lab ---" << endl;
+    cout << "Enter first string: ";
+    string s1;
+    cin >> ws;
+    getline(cin, s1);
+    cout << "Enter second string: ";
+    string s2;
+    getline(cin, s2);
+
+    LinkedString ls1(s1);
+    LinkedString ls2(s2);
+
+    cout << "You entered:\n";
+    cout << "  1) " << ls1.toStdString() << " (length=" << ls1.length() << ")\n";
+    cout << "  2) " << ls2.toStdString() << " (length=" << ls2.length() << ")\n";
+
+    if (ls1.equals(ls2))
+        cout << "The two strings are equal.\n";
+    else
+        cout << "The two strings are NOT equal.\n";
+
+    cout << "Demo: change first char of first string to 'X' (if exists)" << endl;
+    if (ls1.length() > 0) {
+        ls1.set(0, 'X');
+        cout << "Modified 1) " << ls1.toStdString() << "\n";
+    }
+
+    cout << "Press Enter to continue...";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
+// ------------------------------------------------------
+// Homework 05 activity: Linked Bag demonstration
+// ------------------------------------------------------
+
+void Game::runBagDemo() {
+    using namespace std;
+    cout << "\n--- Linked Bag Demo ---" << endl;
+    LinkedBag<string> bag;
+    cout << "We'll add several strings to a linked bag, then remove and query." << endl;
+    vector<string> samples = {"apple", "banana", "cherry", "date", "banana"};
+    for (auto &w : samples) {
+        bag.add(w);
+        cout << "added '" << w << "'\n";
+    }
+    cout << "current bag size: " << bag.getCurrentSize() << "\n";
+    cout << "Bag contains 'banana'? " << (bag.contains("banana") ? "yes" : "no") << "\n";
+    cout << "Removing 'banana'...\n";
+    bag.remove("banana");
+    cout << "Size after removal: " << bag.getCurrentSize() << "\n";
+    cout << "Contents via toVector(): ";
+    auto vec = bag.toVector();
+    for (auto &x : vec) cout << x << " ";
+    cout << "\n";
+    cout << "Clear bag.\n";
+    bag.clear();
+    cout << "Bag empty? " << (bag.isEmpty() ? "yes" : "no") << "\n";
+
+    cout << "Press Enter to continue...";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
 // ---------------- Week 04 helper implementations ----------------
 
 void Game::handleSpawnSkip()
@@ -452,6 +542,17 @@ void Game::handlePickItem()
     cout << "Picked up: " << it.name << " (" << it.value << ")\n";
 }
 
+// simple demo stubs to satisfy menu
+void Game::runNPCGroupDemo() {
+    cout << "\n--- NPC Group Demo ---\n";
+    cout << "(This demo would show a container of NPC pointers.)\n";
+}
+
+void Game::runNPCSpawnerDemo() {
+    cout << "\n--- NPC Spawner Demo ---\n";
+    cout << "(This demo shows the NPCSpawner in action.)\n";
+}
+
 void Game::handleDropItem()
 {
     player.showInventory();
@@ -495,5 +596,117 @@ void Game::run() {
     cout << "Thanks for playing!" << endl;
 }
 
+// ======================================================
+// Spell Grimoire implementations (using LinkedBag<Spell>)
+// ======================================================
+
+void Game::initializeGrimoire() {
+    // Start the player with a few spells
+    grimoire.learnSpell(Spell("Fireball", 20, 30, "deals 30 fire damage"));
+    grimoire.learnSpell(Spell("Ice Storm", 25, 35, "deals 35 ice damage"));
+    grimoire.learnSpell(Spell("Lightning", 15, 25, "deals 25 lightning damage"));
+    cout << "Your grimoire has been initialized with starter spells!" << endl;
+}
+
+void Game::viewGrimoire() const {
+    cout << "\n=== Your Spell Grimoire ===" << endl;
+    if (grimoire.isEmpty()) {
+        cout << "Your grimoire is empty. Learn some spells!" << endl;
+        return;
+    }
+    
+    auto spells = grimoire.getAllSpells();
+    cout << "You know " << spells.size() << " spell(s):\n" << endl;
+    for (size_t i = 0; i < spells.size(); ++i) {
+        cout << i + 1 << ") " << spells[i].getNameAsString() << endl;
+        cout << "   Mana Cost: " << spells[i].getManaCost() 
+             << " | Damage: " << spells[i].getDamage() 
+             << " | Effect: " << spells[i].getEffect() << endl;
+    }
+    cout << endl;
+}
+
+void Game::learnNewSpell(const Spell& spell) {
+    if (grimoire.learnSpell(spell)) {
+        cout << "You learned the spell \"" << spell.getNameAsString() << "\"!" << endl;
+    } else {
+        cout << "Could not learn the spell." << endl;
+    }
+}
+
+void Game::castSpellFromGrimoire() {
+    if (grimoire.isEmpty()) {
+        cout << "\nYour grimoire is empty! Learn some spells first." << endl;
+        return;
+    }
+    
+    cout << "\n=== Cast Spell from Grimoire ===" << endl;
+    viewGrimoire();
+    
+    auto spells = grimoire.getAllSpells();
+    cout << "Choose a spell to cast (1-" << spells.size() << "), or 0 to cancel: ";
+    int choice = 0;
+    if (!(cin >> choice) || choice < 0 || choice > static_cast<int>(spells.size())) {
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << "Invalid choice." << endl;
+        return;
+    }
+    
+    if (choice == 0) {
+        cout << "Spell casting cancelled." << endl;
+        return;
+    }
+    
+    Spell spell = spells[choice - 1];
+    cout << "You cast " << spell.getNameAsString() << "!" << endl;
+    cout << "  Effect: " << spell.getEffect() << endl;
+    cout << "  (Mana cost: " << spell.getManaCost() << ")" << endl;
+}
+
+// ======================================================
+// Loot Bag implementations (using LinkedBag<Item>)
+// ======================================================
+
+void Game::handleLootBag() {
+    cout << "\n=== Loot Bag ===" << endl;
+    if (lootBag.isEmpty()) {
+        cout << "Your loot bag is empty." << endl;
+        return;
+    }
+    
+    auto lootItems = lootBag.toVector();
+    cout << "You have " << lootItems.size() << " item(s) in your loot bag:\n" << endl;
+    for (size_t i = 0; i < lootItems.size(); ++i) {
+        cout << i + 1 << ") " << lootItems[i].name 
+             << " (value: $" << lootItems[i].value << ")" << endl;
+    }
+    
+    cout << "\nOptions: 1) Transfer all to inventory  2) Cancel\n";
+    cout << "Choose: ";
+    int choice = 0;
+    if (!(cin >> choice)) {
+        cin.clear();
+        cin.ignore(10000, '\n');
+        return;
+    }
+    
+    if (choice == 1) {
+        transferLootToInventory();
+    }
+}
+
+void Game::transferLootToInventory() {
+    auto lootItems = lootBag.toVector();
+    int transferred = 0;
+    
+    for (auto& item : lootItems) {
+        player.addItem(item);
+        transferred++;
+    }
+    
+    lootBag.clear();
+    cout << "Transferred " << transferred << " item(s) to inventory." << endl;
+}
 }
 
