@@ -47,23 +47,33 @@ def detect_app_name() -> str:
     """Try to determine a sensible application name.
 
     Strategy:
-    1. Look for the first source file containing a definition of `main(` and
-       use its base name (without extension).
-    2. If none found, default to the name of the repository root directory.
+    1. If the detected source directory is '<appname>/src' (or similar), use
+       '<appname>' — this is the most reliable signal in this project layout.
+    2. Look for a top-level subdirectory that contains both 'src/' and 'include/'
+       siblings, which indicates a self-contained app folder.
+    3. Fall back to the name of the repository root directory.
+
+    Note: we intentionally do NOT derive the name from whichever .cpp file
+    happens to contain 'int main' first, because test files and demo files also
+    define main() and would produce wrong names (e.g. 'combat_test' or
+    'pointers_demo') depending on filesystem walk order.
     """
-    for dirpath, dirnames, filenames in os.walk(ROOT):
-        if any(part.startswith('.') for part in os.path.relpath(dirpath, ROOT).split(os.sep)):
-            continue
-        for fn in filenames:
-            if fn.endswith(('.cpp', '.cc', '.cxx')):
-                full = os.path.join(dirpath, fn)
-                try:
-                    with open(full, 'r', encoding='utf-8') as f:
-                        content = f.read()
-                except Exception:
-                    continue
-                if 'int main' in content:
-                    return os.path.splitext(fn)[0]
+    srcdir = detect_source_directory()
+    parts = srcdir.replace('/', os.sep).split(os.sep)
+    # Pattern: '<appname>/src' → return '<appname>'
+    if len(parts) >= 2 and parts[-1] in ('src', 'source', 'sources'):
+        return parts[-2]
+    # Pattern: look for a top-level dir that owns both src/ and include/
+    try:
+        entries = os.listdir(ROOT)
+    except OSError:
+        entries = []
+    for entry in sorted(entries):
+        full = os.path.join(ROOT, entry)
+        if os.path.isdir(full):
+            if (os.path.isdir(os.path.join(full, 'src')) and
+                    os.path.isdir(os.path.join(full, 'include'))):
+                return entry
     # fallback to root directory name
     return os.path.basename(ROOT)
 

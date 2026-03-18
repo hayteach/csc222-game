@@ -69,6 +69,23 @@ public:
     // Indexing operators for convenience
     Item& operator[](size_t idx) { return items.get(idx); }
     const Item& operator[](size_t idx) const { return items.get(idx); }
+
+    // ---------------------------------------------------------------
+    // Week 08 — Sorting & Searching (Algorithm Efficiency)
+    // ---------------------------------------------------------------
+
+    // Sort items in ascending order by value — O(n²) bubble sort
+    void sortByValue();
+
+    // Sort items in ascending order by name — O(n²) bubble sort
+    void sortByName();
+
+    // Linear search by name — returns index or -1 if not found — O(n)
+    int findByName(const std::string& name) const;
+
+    // Binary search by name — returns index or -1 if not found — O(log n)
+    // Precondition: inventory must already be sorted by name (call sortByName first)
+    int binarySearchByName(const std::string& name) const;
 };
 
 } // namespace dungeongame

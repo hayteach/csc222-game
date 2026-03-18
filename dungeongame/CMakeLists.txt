@@ -107,6 +107,12 @@ if(BUILD_TESTS)
     set_target_properties(test_spell_eval PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
     add_test(NAME test_spell_eval COMMAND test_spell_eval)
 
+    # Week 08 — Algorithm Efficiency: sorting & searching
+    add_executable(test_sorting tests/test_sorting.cpp)
+    target_link_libraries(test_sorting PRIVATE dungeongame_lib)
+    set_target_properties(test_sorting PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
+    add_test(NAME test_sorting COMMAND test_sorting)
+
     enable_testing()
     add_test(NAME combat_test COMMAND combat_test_exe)
 endif()

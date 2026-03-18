@@ -81,8 +81,7 @@ void Game::displayMenu() const {
     cout << "20) NPC spawner demo\n";
     cout << "21) Linked String Lab (lab07)\n";
     cout << "22) Linked Bag Demo (hw05)\n";
-    cout << "23) View Grimoire (learned spells)\n";
-    cout << "24) Check Loot Bag\n";
+
     cout << "Choose an action: ";
 }
 
