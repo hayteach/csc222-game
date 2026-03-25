@@ -135,6 +135,8 @@ void Game::displayMenu() const {
     cout << "24) Loot Bag\n";
     cout << "25) Sort/Search Demo (inventory)\n";
     cout << "26) Compare bubble vs insertion sort\n";
+    cout << "27) Array Sort Benchmarks (CSV output)\n";
+    cout << "28) Run all sorts on Inventory (compare)\n";
 
     cout << "Choose an action: ";
 }
@@ -239,6 +241,14 @@ void Game::processChoice(int choice) {
         }
         case 26: {
             runSortCompareDemo();
+            break;
+        }
+        case 27: {
+            runArraySortBenchmarks();
+            break;
+        }
+        case 28: {
+            runSortInventoryAllDemo();
             break;
         }
         default:
