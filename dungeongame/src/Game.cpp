@@ -763,6 +763,300 @@ void Game::runSortCompareDemo() {
     cout << "\n(Observation: comparisons/time vary depending on sorting algorithm and input order.)\n";
 }
 
+// ---------------- Week 11: Array-based sorts & inventory-wide demos ----------------
+
+// Instrumented array sorts (operate on vector<int>) — return comparison count
+static size_t bubbleSortArray(std::vector<int>& arr) {
+    size_t n = arr.size();
+    size_t comparisons = 0;
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = 0; j + 1 < n - i; ++j) {
+            comparisons++;
+            if (arr[j] > arr[j + 1]) std::swap(arr[j], arr[j + 1]);
+        }
+    }
+    return comparisons;
+}
+
+static size_t insertionSortArray(std::vector<int>& arr) {
+    size_t comparisons = 0;
+    for (size_t i = 1; i < arr.size(); ++i) {
+        int key = arr[i];
+        int j = static_cast<int>(i) - 1;
+        while (j >= 0) {
+            comparisons++;
+            if (arr[static_cast<size_t>(j)] > key) {
+                arr[static_cast<size_t>(j + 1)] = arr[static_cast<size_t>(j)];
+                --j;
+            } else break;
+        }
+        arr[static_cast<size_t>(j + 1)] = key;
+    }
+    return comparisons;
+}
+
+static size_t mergeSortArrayRec(std::vector<int>& arr, std::vector<int>& tmp, int lo, int hi) {
+    if (lo >= hi) return 0;
+    int mid = lo + (hi - lo) / 2;
+    size_t comps = 0;
+    comps += mergeSortArrayRec(arr, tmp, lo, mid);
+    comps += mergeSortArrayRec(arr, tmp, mid + 1, hi);
+    int i = lo, j = mid + 1, k = lo;
+    while (i <= mid && j <= hi) {
+        comps++;
+        if (arr[i] <= arr[j]) tmp[k++] = arr[i++];
+        else tmp[k++] = arr[j++];
+    }
+    while (i <= mid) tmp[k++] = arr[i++];
+    while (j <= hi) tmp[k++] = arr[j++];
+    for (int x = lo; x <= hi; ++x) arr[x] = tmp[x];
+    return comps;
+}
+
+static size_t mergeSortArray(std::vector<int>& arr) {
+    std::vector<int> tmp(arr.size());
+    return mergeSortArrayRec(arr, tmp, 0, static_cast<int>(arr.size()) - 1);
+}
+
+static int partitionQS(std::vector<int>& arr, int lo, int hi, size_t& comps) {
+    int pivot = arr[hi];
+    int i = lo - 1;
+    for (int j = lo; j < hi; ++j) {
+        comps++;
+        if (arr[j] < pivot) {
+            ++i;
+            std::swap(arr[i], arr[j]);
+        }
+    }
+    std::swap(arr[i + 1], arr[hi]);
+    return i + 1;
+}
+
+static size_t quickSortArrayRec(std::vector<int>& arr, int lo, int hi) {
+    size_t comps = 0;
+    if (lo < hi) {
+        int p = partitionQS(arr, lo, hi, comps);
+        comps += quickSortArrayRec(arr, lo, p - 1);
+        comps += quickSortArrayRec(arr, p + 1, hi);
+    }
+    return comps;
+}
+
+static size_t quickSortArray(std::vector<int>& arr) {
+    if (arr.empty()) return 0;
+    // quickSortArrayRec uses partitionQS which accumulates comparisons via return values
+    return quickSortArrayRec(arr, 0, static_cast<int>(arr.size()) - 1);
+}
+
+void Game::runArraySortBenchmarks() {
+    using namespace std::chrono;
+    cout << "\n=== Array Sort Benchmarks ===\n";
+    std::vector<int> sizes = {100, 1000, 10000, 50000, 100000};
+    cout << "size,algorithm,time_us,comparisons\n";
+    for (int s : sizes) {
+        // generate random array with values [0, s*10)
+        std::vector<int> base(s);
+        for (int i = 0; i < s; ++i) base[i] = rand() % (s * 10);
+
+        // Bubble
+        auto arr1 = base;
+        auto t0 = steady_clock::now();
+        size_t comps1 = bubbleSortArray(arr1);
+        auto t1 = steady_clock::now();
+        auto us1 = duration_cast<microseconds>(t1 - t0).count();
+        cout << s << ",bubble," << us1 << "," << comps1 << "\n";
+
+        // Insertion
+        auto arr2 = base;
+        t0 = steady_clock::now();
+        size_t comps2 = insertionSortArray(arr2);
+        t1 = steady_clock::now();
+        auto us2 = duration_cast<microseconds>(t1 - t0).count();
+        cout << s << ",insertion," << us2 << "," << comps2 << "\n";
+
+        // Merge
+        auto arr3 = base;
+        t0 = steady_clock::now();
+        size_t comps3 = mergeSortArray(arr3);
+        t1 = steady_clock::now();
+        auto us3 = duration_cast<microseconds>(t1 - t0).count();
+        cout << s << ",merge," << us3 << "," << comps3 << "\n";
+
+        // Quick
+        auto arr4 = base;
+        t0 = steady_clock::now();
+        size_t comps4 = quickSortArray(arr4);
+        t1 = steady_clock::now();
+        auto us4 = duration_cast<microseconds>(t1 - t0).count();
+        cout << s << ",quick," << us4 << "," << comps4 << "\n";
+
+        // Small sanity check: print first 5 of merge-sorted array
+        cout << "sample_sorted_first5:";
+        for (int i = 0; i < std::min(5, s); ++i) cout << " " << arr3[i];
+        cout << "\n";
+    }
+    cout << "(CSV output above — copy into Excel/Google Sheets and create log-log or semilog plots.)\n";
+}
+
+void Game::runSortInventoryAllDemo() {
+    using namespace std::chrono;
+    cout << "\n=== Inventory: Run All Sorts (compare) ===\n";
+    if (player.inventorySize() == 0) {
+        cout << "Inventory is empty — adding demo items...\n";
+        player.addItem(Item("Potion", 10));
+        player.addItem(Item("Sword", 50));
+        player.addItem(Item("Bow", 45));
+        player.addItem(Item("Shield", 30));
+        player.addItem(Item("Elixir", 20));
+    }
+
+    // Copy inventory into a vector<Item> so array-style sorts are fair (random access)
+    std::vector<Item> base;
+    for (size_t i = 0; i < player.inventorySize(); ++i) base.push_back(player[i]);
+
+    // Helper to run a name-based sort on vector<Item>
+    auto runNameSort = [&](std::vector<Item> data, const std::string& label,
+                           std::function<size_t(std::vector<int>&)> /*unused*/) {
+        // We'll implement using integer mapping: map each name to a hash by comparing strings
+        // But for comparisons counting, we will compare strings directly in adapted algorithms below.
+        // For simplicity reuse std::sort for merge/quick timing comparison but count string comps via lambda.
+    };
+
+    // For clarity, implement three instrumented sorts operating on vector<Item> comparing .name
+    auto bubbleItems = [&](std::vector<Item> v) {
+        size_t comps = 0;
+        size_t n = v.size();
+        for (size_t i = 0; i < n; ++i) {
+            for (size_t j = 0; j + 1 < n - i; ++j) {
+                comps++;
+                if (v[j].name > v[j + 1].name) std::swap(v[j], v[j + 1]);
+            }
+        }
+        return std::make_pair(v, comps);
+    };
+
+    auto insertionItems = [&](std::vector<Item> v) {
+        size_t comps = 0;
+        for (size_t i = 1; i < v.size(); ++i) {
+            Item key = v[i];
+            int j = static_cast<int>(i) - 1;
+            while (j >= 0) {
+                comps++;
+                if (v[static_cast<size_t>(j)].name > key.name) {
+                    v[static_cast<size_t>(j + 1)] = v[static_cast<size_t>(j)];
+                    --j;
+                } else break;
+            }
+            v[static_cast<size_t>(j + 1)] = key;
+        }
+        return std::make_pair(v, comps);
+    };
+
+    // Merge sort for Items
+    std::function<size_t(std::vector<Item>&, std::vector<Item>&, int, int)> mergeItemsRec;
+    mergeItemsRec = [&](std::vector<Item>& arr, std::vector<Item>& tmp, int lo, int hi) -> size_t {
+        if (lo >= hi) return 0;
+        int mid = lo + (hi - lo) / 2;
+        size_t comps = 0;
+        comps += mergeItemsRec(arr, tmp, lo, mid);
+        comps += mergeItemsRec(arr, tmp, mid + 1, hi);
+        int i = lo, j = mid + 1, k = lo;
+        while (i <= mid && j <= hi) {
+            comps++;
+            if (arr[i].name <= arr[j].name) tmp[k++] = arr[i++];
+            else tmp[k++] = arr[j++];
+        }
+        while (i <= mid) tmp[k++] = arr[i++];
+        while (j <= hi) tmp[k++] = arr[j++];
+        for (int x = lo; x <= hi; ++x) arr[x] = tmp[x];
+        return comps;
+    };
+
+    auto mergeItems = [&](std::vector<Item> v) {
+        std::vector<Item> tmp(v.size());
+        size_t comps = 0;
+        if (!v.empty()) comps = mergeItemsRec(v, tmp, 0, static_cast<int>(v.size()) - 1);
+        return std::make_pair(v, comps);
+    };
+
+    // Quick sort for Items
+    std::function<size_t(std::vector<Item>&, int, int)> quickItemsRec;
+    std::function<int(std::vector<Item>&, int, int, size_t&)> partitionItems;
+
+    partitionItems = [&](std::vector<Item>& arr, int lo, int hi, size_t& comps) -> int {
+        std::string pivot = arr[hi].name;
+        int i = lo - 1;
+        for (int j = lo; j < hi; ++j) {
+            comps++;
+            if (arr[j].name < pivot) {
+                ++i; std::swap(arr[i], arr[j]);
+            }
+        }
+        std::swap(arr[i + 1], arr[hi]);
+        return i + 1;
+    };
+
+    quickItemsRec = [&](std::vector<Item>& arr, int lo, int hi) -> size_t {
+        size_t comps = 0;
+        if (lo < hi) {
+            int p = partitionItems(arr, lo, hi, comps);
+            comps += quickItemsRec(arr, lo, p - 1);
+            comps += quickItemsRec(arr, p + 1, hi);
+        }
+        return comps;
+    };
+
+    auto quickItems = [&](std::vector<Item> v) {
+        size_t comps = 0;
+        if (!v.empty()) comps = quickItemsRec(v, 0, static_cast<int>(v.size()) - 1);
+        return std::make_pair(v, comps);
+    };
+
+    // Run and measure each algorithm
+    auto start = steady_clock::now();
+    {
+        auto t0 = steady_clock::now();
+        auto res = bubbleItems(base);
+        auto t1 = steady_clock::now();
+        auto us = duration_cast<microseconds>(t1 - t0).count();
+        cout << "Bubble sort:\n";
+        for (size_t i = 0; i < res.first.size(); ++i) cout << "  " << i << ") " << res.first[i].name << " (" << res.first[i].value << ")\n";
+        cout << "  Comparisons: " << res.second << "  Time: " << us << " microseconds\n\n";
+    }
+
+    {
+        auto t0 = steady_clock::now();
+        auto res = insertionItems(base);
+        auto t1 = steady_clock::now();
+        auto us = duration_cast<microseconds>(t1 - t0).count();
+        cout << "Insertion sort:\n";
+        for (size_t i = 0; i < res.first.size(); ++i) cout << "  " << i << ") " << res.first[i].name << " (" << res.first[i].value << ")\n";
+        cout << "  Comparisons: " << res.second << "  Time: " << us << " microseconds\n\n";
+    }
+
+    {
+        auto t0 = steady_clock::now();
+        auto res = mergeItems(base);
+        auto t1 = steady_clock::now();
+        auto us = duration_cast<microseconds>(t1 - t0).count();
+        cout << "Merge sort:\n";
+        for (size_t i = 0; i < res.first.size(); ++i) cout << "  " << i << ") " << res.first[i].name << " (" << res.first[i].value << ")\n";
+        cout << "  Comparisons: " << res.second << "  Time: " << us << " microseconds\n\n";
+    }
+
+    {
+        auto t0 = steady_clock::now();
+        auto res = quickItems(base);
+        auto t1 = steady_clock::now();
+        auto us = duration_cast<microseconds>(t1 - t0).count();
+        cout << "Quick sort:\n";
+        for (size_t i = 0; i < res.first.size(); ++i) cout << "  " << i << ") " << res.first[i].name << " (" << res.first[i].value << ")\n";
+        cout << "  Comparisons: " << res.second << "  Time: " << us << " microseconds\n\n";
+    }
+
+    cout << "(Observation: merge/quick are typically O(n log n); bubble/insertion are O(n^2). Times/comparisons depend on input order and size.)\n";
+}
+
 void Game::runNPCSpawnerDemo() {
     cout << "\n--- NPC Spawner Demo ---\n";
     cout << "(This demo shows the NPCSpawner in action.)\n";
