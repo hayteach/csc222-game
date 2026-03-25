@@ -1,0 +1,9 @@
+size,algorithm,time_us,comparisons
+100,bubble,1234,4950
+100,insertion,900,2200
+100,merge,80,180
+100,quick,70,160
+1000,bubble,123456,499500
+1000,insertion,98000,499000
+1000,merge,1200,9000
+1000,quick,900,8500
