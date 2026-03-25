@@ -1,118 +1,106 @@
-# Week 10 — Searching & Sorting
+# Week 11 — Sorting, Search, and Benchmarks (Lesson Plan)
 
-## Learning Objectives
-- Illustrate the basic components of search algorithms and their various implementations (linear, binary, tree search)
-- Explain the differences between list and tree search-and-sort approaches
-- Describe the key ideas behind common sorting algorithms and when to use them
-- Explain basic complexity analysis and Big-O notation for searching and sorting
-- Apply search and sort techniques in the dungeon game codebase and reason about their performance
+## Context
+This lesson takes the HW07 material (Merge & Quick sort + timing comparisons) and integrates it into the Dungeon of Data Structures game. All work is done in the repository branch `week11` and students will run demos from inside the game (menu options 27/28).
 
----
-
-## 1. Warm-up (10 min)
-### Why searching and sorting matter
-Ask students:
-- How do you find a phone number in a list of contacts? How would you do it if the list is **unsorted** vs. **sorted**?
-- Why do real-world systems (search engines, online stores, databases) care so much about sorting and searching?
-
-Have them brainstorm answers, then show:
-- Linear scan is easy but can be slow (O(n))
-- Sorting lets us use faster searches (e.g., binary search O(log n))
+Course: CSC222 — Programming & Algorithms II
+Week: 11
+Topic: Merge sort, Quick sort, Binary search, Benchmarks and Big-O in practice
 
 ---
 
-## 2. Lecture — Search Algorithms (25 min)
-
-### 2.1 List Search: Linear vs. Binary
-- **Linear search** (sequential scan): works on any list (sorted or not)
-- **Binary search**: requires a **sorted** list, then repeatedly halves the search range
-
-#### Code sketch (C++):
-```cpp
-// Linear search: O(n)
-int linearSearch(const std::vector<Item>& items, const std::string& name) {
-    for (int i = 0; i < (int)items.size(); i++) {
-        if (items[i].name == name) return i;
-    }
-    return -1;
-}
-
-// Binary search: O(log n) (sorted input required)
-int binarySearch(const std::vector<Item>& items, const std::string& name) {
-    int lo = 0, hi = (int)items.size() - 1;
-    while (lo <= hi) {
-        int mid = (lo + hi) / 2;
-        if (items[mid].name == name) return mid;
-        if (items[mid].name < name) lo = mid + 1;
-        else hi = mid - 1;
-    }
-    return -1;
-}
-```
-
-### 2.2 Tree Search (optional / conceptual)
-- Explain the idea of a **binary search tree** (BST): left < node < right
-- Show how search is a recursive descent down the tree
-- Mention that balanced trees (AVL, red-black) provide O(log n) search reliably
+## Learning objectives
+By the end of class students will be able to:
+- Explain the difference between O(n), O(n log n), and O(n²) in practical terms.
+- Describe Merge sort and Quick sort (divide & conquer) and their trade-offs (memory, stability, worst-case behavior).
+- Run and collect empirical timing + comparison data for multiple sorting algorithms and plot the results.
+- Apply sorting to the game's Inventory and reason about when to sort vs. linear scan for search tasks.
 
 ---
 
-## 3. Lecture — Sorting Algorithms (25 min)
-
-### 3.1 Why sort?
-- Sorting is a common precondition for faster searching (binary search, merge, etc.)
-- Many problems are easier on sorted data (e.g., deduplication, range queries)
-
-### 3.2 Sorting algorithm overview
-Briefly discuss:
-- **Bubble sort** (O(n²)): simple, swap adjacent out-of-order elements
-- **Selection sort** (O(n²)): repeatedly pick the min and place it at the front
-- **Insertion sort** (O(n²) worst; O(n) best): builds sorted prefix; good for nearly sorted input
-- **Merge sort** (O(n log n) stable; divide & conquer)
-- **Quick sort** (average O(n log n), worst O(n²); pivot partitioning)
-- **Radix sort** (non-comparative; O(n·k) with k = number of digit positions)
-
-### 3.3 Complexity review (Big-O)
-- Grew from week 8: compare O(n), O(n log n), O(n²)
-- Emphasize: constants and lower-order terms don’t matter for big input sizes
+## Quick Big-O reference (for students)
+- Bubble sort: O(n²) average/worst, O(n) best if short-circuited; memory O(1); stable.
+- Insertion sort: O(n²) average/worst, O(n) best for nearly-sorted input; memory O(1); stable.
+- Merge sort: O(n log n) always; extra memory O(n) for merging; stable.
+- Quick sort: average O(n log n), worst O(n²) with poor pivots; in-place (small extra stack), typically faster than merge for in-memory sorts; not stable by default.
+- Binary search: O(log n) — requires sorted input. Linear search: O(n) — works on unsorted data.
 
 ---
 
-## 4. Guided lab activity (35 min)
-
-### 4.1 Visualize algorithms (10 min)
-- Open **Visualgo**: https://visualgo.net/en
-- Walk through **Searching** (linear vs binary) and **Sorting** algorithms (bubble, selection, insertion, merge, quick)
-- Ask: “Which algorithms do you see doing work on already-sorted input?”
-
-### 4.2 Apply to the dungeon game code (25 min)
-- Open `game_lab_activity.md` (existing lab instructions) and locate the sections for searching and sorting.
-- In class, do the following together:
-  1. **Inventory search:** Implement `linearSearchByName()` for `Inventory` and count comparisons.
-  2. **Sorting:** Add `bubbleSortByValue()` to `Inventory` (or use existing bubble sort helper) and show before/after.
-  3. **Binary search experiment:** After sorting, implement `binarySearchByName()` and compare the count of comparisons vs. linear search.
+## Class logistics
+- Date/time: Today — class at 2:00 PM (you mentioned this in chat).
+- Recommended session length: 75 minutes. (If your section is 50 minutes, follow the 50-min variant below.)
+- Repo/branch: ~/Projects/Mendocino College/CSC222/game → branch `week11` (I've pushed all changes there).
+- New game menu items (use these during class):
+  - 27) Array Sort Benchmarks (CSV output) — prints CSV lines for sizes up to 1,000,000 (bubble/insertion are skipped for very large sizes).
+  - 28) Run all sorts on Inventory (compare) — runs bubble, insertion, merge, quick on game Inventory and prints comparisons + timings.
 
 ---
 
-## 5. Homework / follow-up (take-home / next class)
-- Complete the remaining steps in `game_lab_activity.md` if not finished during class.
-- Add a second sort algorithm:
-  - Option A: **Selection sort** for `Inventory::sortByName()`
-  - Option B: **Insertion sort** for `NPCGroup::sortByHealth()`
-- Write a small test program (e.g., in `tests/test_sorting.cpp`) that:
-  1. Creates an `Inventory` with at least 8 unsorted items
-  2. Runs bubble sort and selection/insertion sort, printing the list before and after
-  3. Prints the number of comparisons each sort made
-- In a comment at the top of the test, record the Big-O class of each implemented sort and why it matches that class.
+## Lesson plan (75-minute version)
+
+0. (5 min) Setup & housekeeping
+- Confirm students have pulled branch `week11` and built the game.
+  - cd dungeongame && make
+  - ./bin/dungeongame
+- Briefly recap last week's material and learning goals for today.
+
+1. (10 min) Concept check: divide & conquer and Big-O (lecture + questions)
+- Quick conceptual slides / board work: recursion in merge/quick, comparison counts, and memory trade-offs.
+- Ask two quick questions to students (think-pair-share): when would you prefer merge vs quick? when is insertion sort useful?
+
+2. (10 min) Live demo: inventory sorting & search (in-game)
+- Run the game, choose menu item 28 and demonstrate the Inventory run-all-sorts output.
+- Show the sorted output, comparison counts, and microsecond timings.
+- Emphasize: these timings are noisy on laptops — focus on trends and comparison counts.
+
+3. (20 min) Guided lab: array benchmarks (hands-on)
+- Ask students to run menu item 27 themselves (or run it for the class and capture CSV output).
+  - Redirect output to a file if running in a terminal you control: ./bin/dungeongame > sort_results.csv
+  - Choose 27 and let it run; open the CSV in Excel/Google Sheets.
+- Students create a log-log plot (time_us vs size) and annotate which algorithms match O(n²) vs O(n log n).
+- Walk around, help students interpret odd results (e.g., skipped entries for O(n²) on huge sizes).
+
+4. (20 min) Small coding activity / extension (paired)
+- Options (pick one):
+  A) Modify pivot selection in quickSortArray to use median-of-three and re-run benchmarks. Observe differences.
+  B) Add a command-line / menu toggle to limit which algorithms are run (e.g., skip bubble/insertion for large sizes).
+  C) Implement an in-place merge (advanced) or instrument comparisons differently.
+- Students commit small changes to the `week11` branch, push, and open a short PR (or show instructor locally).
+
+5. (5 min) Wrap-up & homework
+- Collect plots and answers to the worksheet questions (lab-info/week11/worksheet.md).
+- Homework: finish plotting, turn in one-page write-up with plots, answer reflection questions, and include any code changes.
 
 ---
 
-## Resources
-- **Visualgo** (interactive algorithm visualizations): https://visualgo.net/en
-- **Sorting Algorithm Visualizer**: https://www.toptal.com/developers/sorting-algorithms
-- **Radix sort explanation**: (no link provided; use existing course resource or search for “radix sort”)
+## 50-minute condensed version
+- 5 min: Setup & quick recap
+- 10 min: Mini-lecture (Big-O + trade-offs)
+- 15 min: Demo + run menu 28 (Inventory) together
+- 15 min: Run menu 27 (array benchmarks) and start plotting (finish as homework)
+- 5 min: Wrap-up & assignments
 
-> **Instructor notes:**
-> - Emphasize the trade-off between simplicity and performance: O(n²) sorts are fine for small lists (e.g., inventory sizes), but become impractical on large data.
-> - Tie back to the dungeon game: searching an unsorted inventory is easy to implement but gets slow as the item count grows. Sorting once and then searching can make sense when you search multiple times.
-> - Keep the focus on **understanding** rather than memorizing formulas. If students can explain why binary search is faster than linear search in one sentence, you’ve succeeded.
+---
+
+## Instructor notes & suggestions
+- The array benchmarks now include larger sizes up to 1,000,000 but skip bubble/insertion for sizes > 100k (to avoid extremely long runs). You can change the skip threshold in Game.cpp if you prefer a different cutoff.
+- If you want deterministic benchmark inputs, call srand(42) or populate arrays with specific patterns (sorted, reverse-sorted, nearly-sorted) to show algorithm sensitivity to input order.
+- If you want me to add an in-class slide deck or printable handout based on this plan, I can generate a short slide outline or a one-page handout and commit it to lab-info/week11.
+
+---
+
+Files updated/created for Week 11 (branch week11):
+- dungeongame/src/Game.cpp — added array benchmarks, inventory-run-all-sorts, menu entries
+- lab-info/week11/game_lab_activity.md — full lab instructions
+- lab-info/week11/lesson-plan.md — (this file) updated for Week 11
+- lab-info/week11/worksheet.md — student worksheet
+- lab-info/week11/sample_sort_results.csv — example CSV output
+
+
+If you'd like, I can now:
+- Generate a short slide deck (PDF) for the 75-minute lesson,
+- Change the O(n²) skip threshold, or
+- Make the benchmarks write results automatically to lab-info/week11/last_run_results.csv.
+
+Which of these would you like next?
