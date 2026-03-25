@@ -11,7 +11,9 @@ Goals
 
 Prerequisites
 - Familiarity with bubble and insertion sort (O(n²)), and linear vs binary search.
-- The repository with the game (we'll use the branch `week11` already prepared).
+- The repository branch `week11` is prepared with starter skeletons (SortingStudent.h/.cpp) and an in-game test hook (menu 29). Students should pull the branch before class so they have the starter files available locally.
+
+Important: do NOT copy completed implementations during class. The purpose of this lab is guided live coding — students will implement Merge and Quick sort themselves while the instructor walks through each step. The repository contains instructor reference implementations used by the game for benchmarking, but students must write their own code in `dungeongame/src/SortingStudent.cpp` during the guided exercise.
 
 ---
 
