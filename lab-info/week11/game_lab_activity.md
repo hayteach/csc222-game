@@ -1,249 +1,109 @@
-# Game Lab Activity — Searching & Sorting (Week 10)
+# Game Lab Activity — Sorting & Search (Week 11)
 
 ## Overview
-In this lab you will connect searching and sorting algorithms to the dungeon game code. The game already has collections such as `Inventory` (a linked list of `Item`s) and `NPCGroup` (a vector of `NPC*`). You will:
+This week's lab adapts HW07 into the Dungeon of Data Structures game. Students will add and compare multiple sorting algorithms (bubble, insertion, merge, quick) and observe how sorting enables fast searching (binary search). All work is integrated into the existing game — no extra programs are required.
 
-- Identify Big-O for key operations in the game code
-- Compare linear vs. binary search (and why binary requires sorted data)
-- Implement and/or exercise sorting algorithms (bubble + selection/insertion)
-- Measure the number of comparisons made by each algorithm
+Goals
+- Implement/inspect Merge and Quick sort concepts (already instrumented in the game).
+- Run array-based benchmarks (default sizes) and collect CSV timing + comparison data for plotting.
+- Run the same sorts on the game's Inventory and compare results (comparisons + microsecond timing).
+- Connect sorting Big-O to practical timing and memory trade-offs.
 
-> **Goal:** By the end of this lab, you should be able to look at a loop in the game code and explain its Big-O, and choose the right search/sort strategy for a given situation.
+Prerequisites
+- Familiarity with bubble and insertion sort (O(n²)), and linear vs binary search.
+- The repository with the game (we'll use the branch `week11` already prepared).
 
 ---
 
-## Step 0 — Get the code ready (5 min)
-1. Open the project in your IDE.
-2. Build the game to ensure everything compiles:
+## Big-O summary (quick reference)
+- Bubble sort: Worst/average O(n²), Best O(n) if you short-circuit for already-sorted input. Memory: O(1). Stable.
+- Insertion sort: Worst/average O(n²), Best O(n) when input is nearly sorted. Memory: O(1). Stable.
+- Merge sort: Worst/average/best O(n log n). Memory: O(n) extra for merging (not in-place). Stable.
+- Quick sort: Average O(n log n), Worst O(n²) (depends on pivot choice). In-place (no large extra array), memory O(log n) stack on average. Not stable unless implemented specially.
+- Binary search: O(log n) — requires sorted data. Linear search: O(n) — works on unsorted data.
+
+Discussion points for students:
+- When is it worth sorting data before repeated searches? (Hint: amortize cost: if you'll search many times, sorting once then binary searching is often better.)
+- Memory trade-offs: merge uses extra space; quick usually sorts in-place but can degrade without good pivot choice.
+
+---
+
+## What I added to the game (branch: week11)
+- Menu options:
+  - 27) Array Sort Benchmarks (CSV output) — runs bubble, insertion, merge, and quick on randomly-generated integer arrays at the default sizes and prints CSV lines: `size,algorithm,time_us,comparisons`.
+  - 28) Run all sorts on Inventory (compare) — copies the player's inventory and runs bubble, insertion, merge, and quick (name-based comparisons). Prints sorted results, comparison counts, and timing (microseconds).
+- Implemented instrumented versions of the four sorting algorithms for arrays and for Inventory (vector<Item>) with comparison counters and microsecond timing. The CSV output is suitable for pasting into Excel/Google Sheets and plotting (log-log or semilog as appropriate).
+
+Note: these demos are designed to run from inside the game menu — no separate test programs are required.
+
+---
+
+## How to run (step-by-step)
+1. Build the game:
 
 ```bash
 cd dungeongame
 make
 ```
 
-3. Run the game to make sure the menu works:
+2. Run the game executable:
 
 ```bash
 ./bin/dungeongame
 ```
 
-> The game now loads inventory data automatically from `dungeongame/data/inventory.txt` (if the file exists).
+3. From the main menu choose one of the new options:
+- 27 → Array Sort Benchmarks (CSV): This will print a header line and then many CSV lines for default sizes: 100, 1000, 10000, 50000, 100000. Example CSV header:
 
-### Loading data from a file (C++ example)
-In C++ you can read a text file line-by-line using `std::ifstream`, then parse each line (for example by splitting on commas). The game uses this technique to load initial inventory items on startup. A simple pattern looks like:
-
-```cpp
-std::ifstream in("data/inventory.txt");
-std::string line;
-while (std::getline(in, line)) {
-    if (line.empty() || line[0] == '#') continue;
-    std::istringstream ss(line);
-    std::string name; 
-    std::string valueStr;
-    std::getline(ss, name, ',');
-    std::getline(ss, valueStr);
-    int value = std::stoi(valueStr);
-    // create an Item and add it to the inventory
-}
+```
+size,algorithm,time_us,comparisons
 ```
 
-4. You don’t need to play the full game — just confirm it starts.
-
----
-
-## Step 1 — Big-O Audit (10 min)
-Open the following files and annotate the complexity (Big-O) in the code comments (or on paper):
-
-- `dungeongame/include/dungeongame/Inventory.h`
-- `dungeongame/include/dungeongame/NPCGroup.h`
-
-For each method below, write the Big-O notation and briefly explain why.
-
-### Inventory methods (linked list)
-- `add(item)`
-- `removeAt(idx)`
-- `operator[](idx)` (index operator)
-- `size()`
-- `isEmpty()`
-
-### NPCGroup methods (vector)
-- `add(npc)`
-- `operator[](idx)`
-- `size()`
-
-> **Discussion:** Why is random access (`operator[]`) O(1) on `vector` but O(n) on `LinkedList`? What trade-offs does `vector` make to achieve that?
-
----
-
-## Step 2 — Search: Linear vs. Binary (25 min)
-The `Inventory` class already includes two search methods:
-- `findByName()` — linear search (O(n))
-- `binarySearchByName()` — binary search (O(log n))
-
-### 2a — Understand the precondition for binary search
-Binary search only works if the items are sorted by the search key (name). If the inventory is not sorted, binary search can return an incorrect result.
-
-### 2b — Verify the implementations
-Open:
-- `dungeongame/src/Inventory.cpp`
-
-Locate `findByName()` and `binarySearchByName()` and read the code. Notice:
-- `findByName` checks each element in order until it finds a match.
-- `binarySearchByName` repeatedly halves the search range based on the middle element.
-
-### 2c — Count comparisons (make it visible)
-Create a small helper in a test file (or in `main` for demonstration):
-
-```cpp
-int linearSearchCount(const Inventory& inv, const std::string& target, int& comparisons) {
-    comparisons = 0;
-    for (size_t i = 0; i < inv.size(); i++) {
-        comparisons++;
-        if (inv[i].name == target) return static_cast<int>(i);
-    }
-    return -1;
-}
-
-int binarySearchCount(const Inventory& inv, const std::string& target, int& comparisons) {
-    comparisons = 0;
-    int lo = 0;
-    int hi = static_cast<int>(inv.size()) - 1;
-    while (lo <= hi) {
-        comparisons++;
-        int mid = lo + (hi - lo) / 2;
-        if (inv[mid].name == target) return mid;
-        if (inv[mid].name < target) lo = mid + 1;
-        else hi = mid - 1;
-    }
-    return -1;
-}
-```
-
-Run both searches on the same inventory and compare the number of comparisons. Try:
-- A small inventory (8 items)
-- A larger inventory (100+ items)
-
-Observe how the comparison counts grow for linear vs. binary.
-
----
-
-## Step 3 — Sorting (30 min)
-The `Inventory` class already provides two sorting methods:
-- `sortByValue()` — bubble sort by item value (O(n²))
-- `sortByName()` — bubble sort by item name (O(n²))
-
-### 3a — Visualize the algorithm
-Open https://visualgo.net/en, select **Sorting → Bubble Sort**, and step through a small list.
-
-### 3b — Examine the implementation
-Open `dungeongame/src/Inventory.cpp` and locate `sortByValue()` and `sortByName()`. Notice the two nested loops and how the inner loop shrinks each pass.
-
-### 3c — Try a different O(n²) sort (optional but recommended)
-Pick one of the following and implement it in `Inventory`:
-- **Selection sort** (good for few swaps)
-- **Insertion sort** (fast when input is nearly sorted)
-
-Example (selection sort by name):
-
-```cpp
-void Inventory::sortByNameSelection() {
-    size_t n = items.size();
-    for (size_t i = 0; i < n; i++) {
-        size_t minIdx = i;
-        for (size_t j = i + 1; j < n; j++) {
-            if (items.get(j).name < items.get(minIdx).name)
-                minIdx = j;
-        }
-        if (minIdx != i)
-            std::swap(items.get(i), items.get(minIdx));
-    }
-}
-```
-
-If you add a new sort method, add a corresponding method declaration to `Inventory.h`.
-
----
-
-## Step 4 — Apply sorting + searching in the game (20 min)
-This step connects the algorithms to a real “game task.”
-
-### 4a — Sort the inventory and then search
-A new menu option has been added to the game for this demo ("Sort/Search Demo"). When you run the game, choose that option (menu item 25) to execute the demo.
-
-The demo will ask you to choose between **bubble sort** and **insertion sort** (both O(n²)) so you can observe their behavior without changing code.
-
-In `dungeongame/src/Game.cpp`, locate the code behind this menu option and verify it.
-
-### 4b — Compare bubble vs insertion sort side-by-side
-A second menu option has been added for this demo: **menu item 26: Compare bubble vs insertion sort**.
-
-This option runs both sorts on the same starting inventory and prints:
-- the sorted item order for each algorithm
-- the number of comparisons each sort made
-- the elapsed time (microseconds) for each sort
-
-#### What code was added (so you can follow along)
-1. **`Game.h`**: a new method declaration:
-
-```cpp
-void runSortCompareDemo();
-```
-
-2. **`Game.cpp`**:
-   - Added menu option `26` in `displayMenu()`
-   - Added a `case 26:` in `processChoice()` to call `runSortCompareDemo()`
-   - Implemented `runSortCompareDemo()` which:
-     - Copies the current inventory into a local `Inventory` object
-     - Runs bubble sort and insertion sort on separate copies
-     - Prints comparisons + timing for each
-
-Run the game and choose option **26** to see the side-by-side comparison.
-
-1. Sorts the inventory by name
-2. Displays the first few items
-3. Searches for a specific name using both `findByName()` and `binarySearchByName()` and prints comparison counts (as in Step 2)
-
-This can be a temporary demonstration for the lab.
-
-### 4b — Optional: add a new menu option
-Add a new menu option to the main menu (e.g., “23) Sort Inventory (demo)”). In `Game::displayMenu()` and `Game::processChoice()`, add a case that runs the demo code from 4a.
-
----
-
-## Step 5 — Verify with a test program (20 min)
-Create a test file `dungeongame/tests/test_sorting.cpp` that:
-
-1. Builds an `Inventory` with at least 8 items in unsorted order
-2. Prints the inventory
-3. Calls `sortByValue()` and prints the inventory again
-4. Calls `sortByName()` and prints the inventory again
-5. Uses the comparison-count helper functions from Step 2 to compare `findByName()` vs `binarySearchByName()` (remember to sort first)
-
-### Example output expectations
-- Unsorted list prints in original insertion order
-- After `sortByValue()`, items are ordered by value
-- After `sortByName()`, items are ordered alphabetically
-- Binary search should require far fewer comparisons than linear search on the same sorted inventory
-
-Run the tests:
+Copy the CSV output into a file (or pipe into a file if you run the game in a terminal that supports redirection). Example (from a shell):
 
 ```bash
-cd dungeongame
-./bin/test_sorting
+./bin/dungeongame > sort_results.txt
+# then in the game choose 27 and let it run; all CSV lines will be captured in sort_results.txt
 ```
 
----
+- 28 → Run all sorts on Inventory (compare): This prints a human-readable report showing the sorted inventory for each algorithm, comparisons, and microsecond timings.
 
-## Reflection (5 min)
-Answer these questions in a few sentences (in your notebook or a comment block in the test file):
-
-1. Why does binary search require sorted data, but linear search does not?
-2. What is the practical difference between an O(n) algorithm and an O(n²) algorithm when n is large?
-3. In this game, when would it make sense to sort the inventory before searching? When might you prefer to just do a linear search?
+4. Plotting the results:
+- Paste the CSV data into Excel / Google Sheets. Recommended sizes are already used by the benchmark; use log-log plots to visualize growth across orders of magnitude.
+- For each algorithm plot `time_us` vs `size`. You can also plot `comparisons` vs `size`.
 
 ---
 
-### Extensions (extra credit)
-- Implement and compare **merge sort** (O(n log n)) on the inventory.
-- Add a method to sort NPCs by their `getHealth()` or `getAttackPower()` and then search for the weakest/strongest NPC.
-- Add a speed benchmark using `std::chrono::steady_clock` to print elapsed time for each algorithm (not just comparison counts).
+## Lab tasks (student-facing)
+1. Run the game and choose menu option 27 to collect CSV timing/comparison data for array sorts.
+2. Paste the CSV into a sheet and produce plots (suggested: log-log chart of time vs size). Include a short caption describing which algorithms match O(n²) vs O(n log n) behavior.
+3. Choose menu option 28 to run all sorts on the Inventory. Observe differences in comparisons/time and note any ordering differences.
+4. Answer the reflection questions below and submit your plots + source file modifications (if you made changes).
+
+Reflection questions (short answers):
+- Why does binary search require sorted data, but linear search does not?
+- For a single search on a small list, which is faster: sort+binary-search or linear search? Explain.
+- How do merge sort and quick sort differ in memory usage and stability?
+- When would you avoid using bubble or insertion sort in real assignments or production code?
+
+---
+
+## Instructor notes
+- The game runs bubble and insertion for all sizes by default. Bubble/insertion on 100k can be very slow; it's intentional for demonstration but consider warning students or skipping bubble/insertion at the largest size during live demos.
+- If you want to skip expensive sorts for the largest sizes, run the game and choose option 27, then press Ctrl+C and re-run with the game redirected into a capture file and stop after the sizes you want. (Alternatively I can modify the code to skip O(n²) sorts for sizes > X — tell me if you want that change.)
+
+---
+
+## Deliverables
+- A single document (PDF or notebook) including:
+  - Plots for each sorting algorithm (time vs size)
+  - Short answers to the reflection questions
+  - Any code changes you made (if students extend or optimize algorithms)
+
+---
+
+If you'd like, I will:
+- Add the Big-O summary into the Player/Inventory header comments as inline notes.
+- Add a small worksheet file (lab-info/week11/worksheet.md) and example CSV sample (lab-info/week11/sample_sort_results.csv).
+
+Shall I add the worksheet and sample CSV now? If yes, I will create them and commit to branch `week11`.
