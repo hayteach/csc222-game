@@ -861,34 +861,49 @@ static size_t quickSortArray(std::vector<int>& arr) {
 void Game::runArraySortBenchmarks() {
     using namespace std::chrono;
     cout << "\n=== Array Sort Benchmarks ===\n";
-    std::vector<int> sizes = {100, 1000, 10000, 50000, 100000};
+    // Extended sizes — include larger sizes for deeper experiments
+    std::vector<int> sizes = {100, 1000, 10000, 50000, 100000, 200000, 500000, 1000000};
     cout << "size,algorithm,time_us,comparisons\n";
+
+    // We'll skip O(n^2) sorts for very large sizes to avoid excessively long runs
+    const int O2_SKIP_THRESHOLD = 100000; // skip bubble/insertion for sizes > 100k
     for (int s : sizes) {
+        cout << "\n-- Running benchmarks for size=" << s << " --\n";
         // generate random array with values [0, s*10)
         std::vector<int> base(s);
         for (int i = 0; i < s; ++i) base[i] = rand() % (s * 10);
 
-        // Bubble
-        auto arr1 = base;
-        auto t0 = steady_clock::now();
-        size_t comps1 = bubbleSortArray(arr1);
-        auto t1 = steady_clock::now();
-        auto us1 = duration_cast<microseconds>(t1 - t0).count();
-        cout << s << ",bubble," << us1 << "," << comps1 << "\n";
+        // Bubble (skip if too large)
+        if (s <= O2_SKIP_THRESHOLD) {
+            auto arr1 = base;
+            auto t0 = steady_clock::now();
+            size_t comps1 = bubbleSortArray(arr1);
+            auto t1 = steady_clock::now();
+            auto us1 = duration_cast<microseconds>(t1 - t0).count();
+            cout << s << ",bubble," << us1 << "," << comps1 << "\n";
+        } else {
+            cout << s << ",bubble,skipped,skipped\n";
+            cout << "(bubble sort skipped for size " << s << " — O(n^2) would be very slow)\n";
+        }
 
-        // Insertion
-        auto arr2 = base;
-        t0 = steady_clock::now();
-        size_t comps2 = insertionSortArray(arr2);
-        t1 = steady_clock::now();
-        auto us2 = duration_cast<microseconds>(t1 - t0).count();
-        cout << s << ",insertion," << us2 << "," << comps2 << "\n";
+        // Insertion (skip if too large)
+        if (s <= O2_SKIP_THRESHOLD) {
+            auto arr2 = base;
+            auto t0 = steady_clock::now();
+            size_t comps2 = insertionSortArray(arr2);
+            auto t1 = steady_clock::now();
+            auto us2 = duration_cast<microseconds>(t1 - t0).count();
+            cout << s << ",insertion," << us2 << "," << comps2 << "\n";
+        } else {
+            cout << s << ",insertion,skipped,skipped\n";
+            cout << "(insertion sort skipped for size " << s << " — O(n^2) would be very slow)\n";
+        }
 
         // Merge
         auto arr3 = base;
-        t0 = steady_clock::now();
+        auto t0 = steady_clock::now();
         size_t comps3 = mergeSortArray(arr3);
-        t1 = steady_clock::now();
+        auto t1 = steady_clock::now();
         auto us3 = duration_cast<microseconds>(t1 - t0).count();
         cout << s << ",merge," << us3 << "," << comps3 << "\n";
 
