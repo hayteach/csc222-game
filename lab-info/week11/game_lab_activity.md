@@ -38,72 +38,74 @@ Note: these demos are designed to run from inside the game menu — no separate 
 
 ---
 
-## How to run (step-by-step)
-1. Build the game:
+## Step-by-step in-class activity (detailed)
+These instructions are written so an instructor can follow them live and students can follow step-by-step during class. They work for both 75- and 50-minute sessions; pick the parts that fit your time.
 
-```bash
-cd dungeongame
-make
-```
+Prerequisites: students should have pulled branch `week11` and have a C++ toolchain (make) available.
 
-2. Run the game executable:
+A. Preparation (5 minutes)
+1. Ask students to pull the latest `week11` branch:
+   - git fetch origin
+   - git checkout week11
+   - git pull
+2. Build the game (in front of the class):
+   - cd dungeongame
+   - make
+3. Start the game:
+   - ./bin/dungeongame
 
-```bash
-./bin/dungeongame
-```
+B. Instructor demo: Inventory sorts & search (10 minutes)
+1. From the main menu choose option 28 (Run all sorts on Inventory).
+2. Walk through the printed output:
+   - For each algorithm (bubble, insertion, merge, quick) point out the sorted order, the comparison count, and the elapsed microseconds.
+   - Ask: do the comparison counts match your expectation for O(n²) vs O(n log n)?
+3. Show the students how to invoke the simpler Sort/Search demo (menu 25) and demonstrate linear vs binary search counts for a chosen target (e.g., "Potion").
 
-3. From the main menu choose one of the new options:
-- 27 → Array Sort Benchmarks (CSV): This will print a header line and then many CSV lines for default sizes: 100, 1000, 10000, 50000, 100000. Example CSV header:
+C. Student hands-on: Array benchmark collection (25 minutes)
+1. Ask students to run the game themselves (or run it on a projector and have them follow along). If they run locally, tell them to redirect output into a file to capture CSV data:
+   - ./bin/dungeongame > sort_results.txt
+   - In the game menu, choose option 27 (Array Sort Benchmarks).
+   - Let it run until it finishes (it will print CSV header and rows). Press Enter/back to main menu when done.
+2. Open the CSV (sort_results.txt) in Excel or Google Sheets. If students ran the game without redirection, they can copy/paste the CSV lines from their terminal into a new sheet.
+3. In the sheet produce a log-log plot (time_us vs size) with one series per algorithm. If CSV contains "skipped" entries for bubble/insertion on large sizes, skip those rows or treat as N/A.
+4. Ask students to annotate the chart and write one sentence: which algorithms match O(n²) and which match O(n log n) in the plotted range?
 
-```
-size,algorithm,time_us,comparisons
-```
+D. Quick paired coding extension (20 minutes)
+Choose one of these small tasks for pairs to work on. Each pair should commit and push their changes to a personal branch (e.g., `week11/quickpivot-{initials}`) and show results to the instructor.
 
-Copy the CSV output into a file (or pipe into a file if you run the game in a terminal that supports redirection). Example (from a shell):
+Option A — Median-of-three pivot for QuickSort
+- Modify partitionQS / quickSortArray to use median-of-three pivot selection (lo, mid, hi) instead of always using arr[hi]. Re-run menu 27 and observe any changes in timings for quick sort.
 
-```bash
-./bin/dungeongame > sort_results.txt
-# then in the game choose 27 and let it run; all CSV lines will be captured in sort_results.txt
-```
+Option B — Add menu toggle to limit algorithms
+- Add a simple menu prompt before benchmarks that asks which algorithms to run (e.g., Y/N for bubble, insertion, merge, quick) and only run selected algorithms. Commit the change and re-run.
 
-- 28 → Run all sorts on Inventory (compare): This prints a human-readable report showing the sorted inventory for each algorithm, comparisons, and microsecond timings.
+Option C — Deterministic inputs
+- Change the benchmark generator to populate arrays with deterministic patterns: sorted, reverse-sorted, nearly-sorted, random. Run the benchmark for each pattern and compare the outcomes.
 
-4. Plotting the results:
-- Paste the CSV data into Excel / Google Sheets. Recommended sizes are already used by the benchmark; use log-log plots to visualize growth across orders of magnitude.
-- For each algorithm plot `time_us` vs `size`. You can also plot `comparisons` vs `size`.
+E. Wrap-up and submission (5 minutes)
+1. Students should export their plots and include a 1-page write-up answering the worksheet questions (lab-info/week11/worksheet.md).
+2. If they modified code, each pair should push a branch and submit a short PR or show the instructor locally.
+3. Collect any questions and summarize key takeaways: when to choose O(n log n) sorts, memory trade-offs, and when linear search is acceptable.
 
 ---
 
-## Lab tasks (student-facing)
-1. Run the game and choose menu option 27 to collect CSV timing/comparison data for array sorts.
-2. Paste the CSV into a sheet and produce plots (suggested: log-log chart of time vs size). Include a short caption describing which algorithms match O(n²) vs O(n log n) behavior.
-3. Choose menu option 28 to run all sorts on the Inventory. Observe differences in comparisons/time and note any ordering differences.
-4. Answer the reflection questions below and submit your plots + source file modifications (if you made changes).
-
-Reflection questions (short answers):
-- Why does binary search require sorted data, but linear search does not?
-- For a single search on a small list, which is faster: sort+binary-search or linear search? Explain.
-- How do merge sort and quick sort differ in memory usage and stability?
-- When would you avoid using bubble or insertion sort in real assignments or production code?
-
----
-
-## Instructor notes
-- The game runs bubble and insertion for all sizes by default. Bubble/insertion on 100k can be very slow; it's intentional for demonstration but consider warning students or skipping bubble/insertion at the largest size during live demos.
-- If you want to skip expensive sorts for the largest sizes, run the game and choose option 27, then press Ctrl+C and re-run with the game redirected into a capture file and stop after the sizes you want. (Alternatively I can modify the code to skip O(n²) sorts for sizes > X — tell me if you want that change.)
+## How to capture results reliably (tips)
+- Redirect game output to a file to ensure CSV rows are saved: `./bin/dungeongame > lab-info/week11/last_run_results.csv` and then choose menu 27. The file will contain CSV lines you can paste into Sheets.
+- If students' machines are slow, recommend they run only merge/quick for large sizes or use the provided sample CSV (lab-info/week11/sample_sort_results.csv).
+- For reproducible benchmarks, edit Game.cpp and call `srand(42);` at the top of `runArraySortBenchmarks()` so arrays are deterministic across runs.
 
 ---
 
 ## Deliverables
-- A single document (PDF or notebook) including:
-  - Plots for each sorting algorithm (time vs size)
-  - Short answers to the reflection questions
-  - Any code changes you made (if students extend or optimize algorithms)
+- A CSV of benchmark results (or the shared sample CSV) and the plotted charts (log-log or semilog) in a PDF or image.
+- A short write-up answering the worksheet questions and explaining any changes you made.
+- Optional: code changes pushed to a branch with a brief PR description.
 
 ---
 
-If you'd like, I will:
-- Add the Big-O summary into the Player/Inventory header comments as inline notes.
-- Add a small worksheet file (lab-info/week11/worksheet.md) and example CSV sample (lab-info/week11/sample_sort_results.csv).
+If you want I can also:
+- Add an in-game prompt to choose which algorithms to run (makes the student workflow simpler),
+- Automatically write the CSV to `lab-info/week11/last_run_results.csv` each time menu 27 runs,
+- Or produce a one-page printable handout / slide PDF from this step-by-step.
 
-Shall I add the worksheet and sample CSV now? If yes, I will create them and commit to branch `week11`.
+Which of those would you like me to add next?
