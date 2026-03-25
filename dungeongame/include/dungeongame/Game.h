@@ -100,6 +100,9 @@ private:
     void runArraySortBenchmarks();
     void runSortInventoryAllDemo();
 
+    // Student testing hook: run student implementations on small arrays/inventory
+    void runStudentSortTests();
+
     // Data loading (optional): load initial inventory items from file
     void loadInventoryFromFile(const std::string& path);
 
