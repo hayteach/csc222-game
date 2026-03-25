@@ -1,0 +1,12 @@
+# Inventory data file (one item per line)
+# Format: <name>,<value>
+# Lines beginning with # are ignored.
+
+Potion,10
+Sword,50
+Bow,45
+Shield,30
+Elixir,20
+Torch,5
+Scroll of Fire,40
+Healing Herb,8

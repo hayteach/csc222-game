@@ -17,12 +17,12 @@ public:
     }
     
     NPC* operator[](size_t idx) { return npcs[idx]; }
-       }
+
     void printAddresses() const {
         std::cout << "NPC addresses (vector order):\n";
         for (auto p : npcs) {
             std::cout << "  " << static_cast<void*>(p) << "\n";
-     
+        }
     }
     
     size_t size() const { return npcs.size(); }

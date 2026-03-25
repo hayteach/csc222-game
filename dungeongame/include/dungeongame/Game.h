@@ -88,6 +88,13 @@ private:
     void runNPCGroupDemo();
     void runNPCSpawnerDemo();
 
+    // Week 10: Sorting & searching demos
+    void runSortSearchDemo();
+    void runSortCompareDemo();
+
+    // Data loading (optional): load initial inventory items from file
+    void loadInventoryFromFile(const std::string& path);
+
 public:
     Game();
     void run();

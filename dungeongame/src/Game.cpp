@@ -15,21 +15,71 @@
 #include "ActionHistory.h"
 #include "SpellEvaluator.h"
 
+#include <chrono>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
+#include <limits>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <limits>
+#include <cstdlib>
+#include <ctime>
 using namespace std;
 
 namespace dungeongame {
 
 Game::Game()
     : running(true), player("Adventurer") {
+    // Optional: load inventory items from a file at startup
+    loadInventoryFromFile("data/inventory.txt");
+
     initMap();
     placePlayerOnMap();
     initializeGrimoire();
+}
+
+void Game::loadInventoryFromFile(const std::string& path) {
+    // Try both the provided path and a project-relative path so the game can be
+    // run from either the repo root or the `dungeongame/` folder.
+    std::ifstream in(path);
+    std::string actualPath = path;
+    if (!in) {
+        std::string altPath = "dungeongame/" + path;
+        in.open(altPath);
+        if (in) {
+            actualPath = altPath;
+        }
+    }
+
+    if (!in) {
+        cout << "(No inventory file found at '" << path << "' or 'dungeongame/" << path
+             << "'. Starting with empty inventory.)\n";
+        return;
+    }
+
+    cout << "Loading inventory from file: " << actualPath << "\n";
+    std::string line;
+    int loaded = 0;
+    while (std::getline(in, line)) {
+        if (line.empty() || line[0] == '#') continue;
+        std::istringstream ss(line);
+        std::string name;
+        if (!std::getline(ss, name, ',')) continue;
+        std::string valueStr;
+        if (!std::getline(ss, valueStr)) continue;
+        int value = 0;
+        try {
+            value = std::stoi(valueStr);
+        } catch (...) {
+            // ignore malformed lines
+            continue;
+        }
+        player.addItem(Item(name, value));
+        loaded++;
+    }
+
+    cout << "  Loaded " << loaded << " item(s) into inventory.\n";
 }
 
 void Game::initMap() {
@@ -81,6 +131,10 @@ void Game::displayMenu() const {
     cout << "20) NPC spawner demo\n";
     cout << "21) Linked String Lab (lab07)\n";
     cout << "22) Linked Bag Demo (hw05)\n";
+    cout << "23) View Grimoire\n";
+    cout << "24) Loot Bag\n";
+    cout << "25) Sort/Search Demo (inventory)\n";
+    cout << "26) Compare bubble vs insertion sort\n";
 
     cout << "Choose an action: ";
 }
@@ -177,6 +231,14 @@ void Game::processChoice(int choice) {
         }
         case 24: {
             handleLootBag();
+            break;
+        }
+        case 25: {
+            runSortSearchDemo();
+            break;
+        }
+        case 26: {
+            runSortCompareDemo();
             break;
         }
         default:
@@ -545,6 +607,160 @@ void Game::handlePickItem()
 void Game::runNPCGroupDemo() {
     cout << "\n--- NPC Group Demo ---\n";
     cout << "(This demo would show a container of NPC pointers.)\n";
+}
+
+static size_t bubbleSortCount(Inventory& inv) {
+    size_t n = inv.size();
+    size_t comparisons = 0;
+    for (size_t i = 0; i < n; i++) {
+        for (size_t j = 0; j < n - i - 1; j++) {
+            comparisons++;
+            if (inv[j].name > inv[j + 1].name) {
+                Item tmp = inv[j];
+                inv[j]   = inv[j + 1];
+                inv[j + 1] = tmp;
+            }
+        }
+    }
+    return comparisons;
+}
+
+static size_t insertionSortCount(Inventory& inv) {
+    size_t comparisons = 0;
+    int n = static_cast<int>(inv.size());
+    for (int i = 1; i < n; i++) {
+        Item key = inv[static_cast<size_t>(i)];
+        int j = i - 1;
+        while (j >= 0) {
+            comparisons++;
+            if (inv[static_cast<size_t>(j)].name > key.name) {
+                inv[static_cast<size_t>(j + 1)] = inv[static_cast<size_t>(j)];
+                j--;
+            } else {
+                break;
+            }
+        }
+        inv[static_cast<size_t>(j + 1)] = key;
+    }
+    return comparisons;
+}
+
+void Game::runSortSearchDemo() {
+    cout << "\n=== Sort/Search Demo ===\n";
+
+    if (player.inventorySize() == 0) {
+        cout << "Inventory is empty — adding demo items...\n";
+        player.addItem(Item("Potion", 10));
+        player.addItem(Item("Sword", 50));
+        player.addItem(Item("Bow", 45));
+        player.addItem(Item("Shield", 30));
+        player.addItem(Item("Elixir", 20));
+    }
+
+    cout << "\nInventory (before sorting):\n";
+    player.showInventory();
+
+    cout << "\nChoose sorting algorithm:\n";
+    cout << "  1) Bubble sort (O(n²))\n";
+    cout << "  2) Insertion sort (O(n²))\n";
+    cout << "Select (1 or 2): ";
+    int sortChoice = 0;
+    if (!(cin >> sortChoice)) {
+        cin.clear();
+        cin.ignore(10000, '\n');
+        sortChoice = 1;
+    }
+
+    if (sortChoice == 2) {
+        cout << "\nSorting inventory by name (insertion sort)...\n";
+        player.sortInventoryByNameInsertion();
+    } else {
+        cout << "\nSorting inventory by name (bubble sort)...\n";
+        player.sortInventoryByName();
+    }
+    player.showInventory();
+
+    const std::string target = "Potion";
+    int linearComparisons = 0;
+    int binaryComparisons = 0;
+    int linearIndex = -1;
+    int binaryIndex = -1;
+
+    // Linear search count
+    for (size_t i = 0; i < player.inventorySize(); ++i) {
+        linearComparisons++;
+        if (player[i].name == target) {
+            linearIndex = static_cast<int>(i);
+            break;
+        }
+    }
+
+    // Binary search count (requires sorted inventory)
+    int lo = 0;
+    int hi = static_cast<int>(player.inventorySize()) - 1;
+    while (lo <= hi) {
+        binaryComparisons++;
+        int mid = lo + (hi - lo) / 2;
+        const std::string& midName = player[mid].name;
+        if (midName == target) {
+            binaryIndex = mid;
+            break;
+        }
+        if (midName < target) lo = mid + 1;
+        else hi = mid - 1;
+    }
+
+    cout << "\nSearch for '" << target << "':\n";
+    cout << "  Linear search: index=" << linearIndex << ", comparisons=" << linearComparisons << "\n";
+    cout << "  Binary search: index=" << binaryIndex << ", comparisons=" << binaryComparisons << "\n";
+}
+
+void Game::runSortCompareDemo() {
+    cout << "\n=== Sort Comparison Demo (Bubble vs Insertion) ===\n";
+
+    // Ensure there's inventory to work with
+    if (player.inventorySize() == 0) {
+        cout << "Inventory is empty — adding demo items...\n";
+        player.addItem(Item("Potion", 10));
+        player.addItem(Item("Sword", 50));
+        player.addItem(Item("Bow", 45));
+        player.addItem(Item("Shield", 30));
+        player.addItem(Item("Elixir", 20));
+    }
+
+    // Copy the current inventory so both algorithms start from the same data
+    Inventory base;
+    for (size_t i = 0; i < player.inventorySize(); ++i) {
+        base.add(player[i]);
+    }
+
+    auto runAndMeasure = [&](Inventory inv, const std::string& label,
+                             size_t (*sortFn)(Inventory&)) {
+        auto start = std::chrono::steady_clock::now();
+        size_t comparisons = sortFn(inv);
+        auto end = std::chrono::steady_clock::now();
+        auto ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+        cout << "\n" << label << ":\n";
+        cout << "  Sorted result:\n";
+        for (size_t i = 0; i < inv.size(); ++i) {
+            cout << "    " << i << ") " << inv[i].name << " (" << inv[i].value << ")\n";
+        }
+        cout << "  Comparisons: " << comparisons << "\n";
+        cout << "  Time: " << ms << " microseconds\n";
+        return comparisons;
+    };
+
+    cout << "Starting with the same inventory for both sorts...\n";
+    cout << "Base inventory:\n";
+    for (size_t i = 0; i < base.size(); ++i) {
+        cout << "  " << i << ") " << base[i].name << " (" << base[i].value << ")\n";
+    }
+
+    runAndMeasure(base, "Bubble sort", bubbleSortCount);
+    runAndMeasure(base, "Insertion sort", insertionSortCount);
+
+    cout << "\n(Observation: comparisons/time vary depending on sorting algorithm and input order.)\n";
 }
 
 void Game::runNPCSpawnerDemo() {

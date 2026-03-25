@@ -56,6 +56,13 @@ class Player : public Character {
         bool usePotion(); // returns true if a potion was used
         bool usePotionAndGet(Item& outItem, int& healAmount); // returns potion used and heal amount
 
+        // Sorting / searching helpers (Week 10)
+        void sortInventoryByValue();
+        void sortInventoryByName();
+        void sortInventoryByNameInsertion();
+        int findInInventoryByName(const std::string& name) const;
+        int binarySearchInventoryByName(const std::string& name) const;
+
         // Health helpers (used by undo)
         void setHealth(int newHealth);
 

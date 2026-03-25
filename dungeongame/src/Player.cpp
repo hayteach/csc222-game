@@ -42,6 +42,27 @@ void Player::showInventory() const {
     }
 }
 
+// Sorting/searching helpers (Week 10)
+void Player::sortInventoryByValue() {
+    inventory.sortByValue();
+}
+
+void Player::sortInventoryByName() {
+    inventory.sortByName();
+}
+
+void Player::sortInventoryByNameInsertion() {
+    inventory.insertionSortByName();
+}
+
+int Player::findInInventoryByName(const std::string& name) const {
+    return inventory.findByName(name);
+}
+
+int Player::binarySearchInventoryByName(const std::string& name) const {
+    return inventory.binarySearchByName(name);
+}
+
 size_t Player::inventorySize() const { return inventory.size(); }
 
 Item& Player::operator[](size_t idx) { return inventory[idx]; }

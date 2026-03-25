@@ -80,11 +80,14 @@ public:
     // Sort items in ascending order by name — O(n²) bubble sort
     void sortByName();
 
+    // Sort items in ascending order by name — O(n²) insertion sort
+    void insertionSortByName();
+
     // Linear search by name — returns index or -1 if not found — O(n)
     int findByName(const std::string& name) const;
 
     // Binary search by name — returns index or -1 if not found — O(log n)
-    // Precondition: inventory must already be sorted by name (call sortByName first)
+    // Precondition: inventory must already be sorted by name (call sortByName or insertionSortByName first)
     int binarySearchByName(const std::string& name) const;
 };
 

@@ -53,6 +53,25 @@ void Inventory::sortByName() {
 }
 
 // ---------------------------------------------------------------------------
+// insertionSortByName — insertion sort ascending by Item::name
+// Builds a sorted prefix by inserting each element into its correct position.
+// Time complexity: O(n²) worst-case, O(n) best-case (already sorted)
+// Space complexity: O(1)
+// ---------------------------------------------------------------------------
+void Inventory::insertionSortByName() {
+    int n = static_cast<int>(items.size());
+    for (int i = 1; i < n; i++) {
+        Item key = items.get(static_cast<size_t>(i));
+        int j = i - 1;
+        while (j >= 0 && items.get(static_cast<size_t>(j)).name > key.name) {
+            items.get(static_cast<size_t>(j + 1)) = items.get(static_cast<size_t>(j));
+            j--;
+        }
+        items.get(static_cast<size_t>(j + 1)) = key;
+    }
+}
+
+// ---------------------------------------------------------------------------
 // findByName — linear search
 // Visits every element in order until a match is found.
 // Returns the index of the first match, or -1 if not found.
