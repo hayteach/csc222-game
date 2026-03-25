@@ -1,5 +1,16 @@
 # Week 11 — Sorting, Search, and Benchmarks (Lesson Plan — Zoom interactive model)
 
+> PINNED INSTRUCTOR HIGHLIGHTS
+>
+> - Quick reference (open during Zoom): lab-info/week11/instructor_sort_solutions.md — see section "Suggested instructor questions + answers" for ready-made answers to common student questions.
+> - Key topics to call out (one-liners you can paste into chat):
+>   - tmp allocation: allocate once at top-level to avoid repeated allocations and keep extra-space O(n).
+>   - copy-back step: necessary to place merged data back into the original array so recursion sees progress.
+>   - stability: using `<=` in merge preserves left-side order for equal elements.
+>   - pivot choice warning: arr[hi] as pivot can cause O(n²) on already-sorted input; median-of-three helps.
+>   - partition schemes: Lomuto = simple, Hoare = fewer swaps / different semantics.
+>   - Inventory notes: string compares cost depends on length and prefixes; stability preserves secondary ordering.
+>
 ## Context
 This lesson adapts HW07 material (Merge & Quick sort + timing comparisons) into the Dungeon of Data Structures game. You will teach live on Zoom and have students type and test code while you guide and ask questions. The repo branch `week11` contains starter files (including SortingStudent skeletons) so students build their implementations during class.
 
