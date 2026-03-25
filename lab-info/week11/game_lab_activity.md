@@ -70,7 +70,91 @@ C. Student hands-on: Array benchmark collection (25 minutes)
 3. In the sheet produce a log-log plot (time_us vs size) with one series per algorithm. If CSV contains "skipped" entries for bubble/insertion on large sizes, skip those rows or treat as N/A.
 4. Ask students to annotate the chart and write one sentence: which algorithms match O(n²) and which match O(n log n) in the plotted range?
 
-D. Quick paired coding extension (20 minutes)
+D. Coding exercise — Implement Merge Sort and Quick Sort (35 minutes)
+This is the central in-class coding task: students will implement Merge Sort and Quick Sort themselves (array-based) inside the game code so they understand the recursion, merging, partitioning, and comparison counting.
+
+Instructor notes before you begin:
+- The repository already contains working implementations for benchmarks; **do not** let students copy those during the exercise. Instead either ask students to work from a provided starter skeleton (recommended) or ask them to remove/ignore the working implementations and implement their own versions in a new helper file (e.g., `dungeongame/src/SortingStudent.cpp`).
+- I'll add starter skeletons and a short checklist below to make the exercise smooth.
+
+Step-by-step student checklist
+1. Create a new source file for your implementation (recommended so you don't overwrite instructor reference):
+   - dungeongame/src/SortingStudent.cpp
+   - dungeongame/include/dungeongame/SortingStudent.h
+2. Add function signatures (matching Game.cpp's expectations) in the header. Suggested signatures:
+
+```cpp
+// Return number of string/int comparisons performed while sorting
+size_t mergeSortArray(std::vector<int>& arr);
+size_t quickSortArray(std::vector<int>& arr);
+
+// (Optional) instrumented item-based versions for Inventory
+std::pair<std::vector<Item>, size_t> mergeItems(std::vector<Item> v);
+std::pair<std::vector<Item>, size_t> quickItems(std::vector<Item> v);
+```
+
+3. Implement Merge Sort (array of ints) using this plan:
+   - Write a recursive helper mergeSortRec(arr, tmp, lo, hi) that returns comparison count.
+   - Base case: if lo >= hi return 0.
+   - Recursively sort left and right halves and accumulate their comparison counts.
+   - Merge the two halves into the tmp array while counting comparisons between elements.
+   - Copy merged results back to arr for indices [lo..hi].
+
+Pseudocode (high level):
+- mergeSortRec(arr, tmp, lo, hi):
+  - if lo >= hi return 0
+  - mid = (lo+hi)/2
+  - comps = mergeSortRec(arr, tmp, lo, mid)
+  - comps += mergeSortRec(arr, tmp, mid+1, hi)
+  - i = lo; j = mid+1; k=lo
+  - while i<=mid and j<=hi:
+      comps++
+      if arr[i] <= arr[j]: tmp[k++] = arr[i++]
+      else: tmp[k++] = arr[j++]
+  - copy remaining
+  - copy tmp[lo..hi] back to arr[lo..hi]
+  - return comps
+
+4. Implement Quick Sort (array of ints) using this plan:
+   - Implement partition(arr, lo, hi, compsRef) that picks a pivot (initially arr[hi]), partitions array in place, increments compsRef when comparing elements to pivot, and returns pivot index.
+   - Implement quickSortRec(arr, lo, hi) that uses partition and recurses; return accumulated comparisons.
+
+Pseudocode (high level):
+- partition(arr, lo, hi, compsRef):
+  - pivot = arr[hi]
+  - i = lo - 1
+  - for j in [lo..hi-1]:
+      compsRef++
+      if arr[j] < pivot: ++i; swap arr[i], arr[j]
+  - swap arr[i+1], arr[hi]
+  - return i+1
+
+- quickSortRec(arr, lo, hi):
+  - if lo < hi:
+      p = partition(arr, lo, hi, comps)
+      comps += quickSortRec(arr, lo, p-1)
+      comps += quickSortRec(arr, p+1, hi)
+  - return comps
+
+Hints and gotchas:
+- Use a temporary vector `tmp(arr.size())` for merge and pass it down into recursive calls to avoid re-allocating each time.
+- For quick sort, be careful with indices and when the partition returns; ensure recursion base cases avoid infinite recursion.
+- Count comparisons consistently: for merge count each comparison of arr[i] and arr[j]; for quick count each comparison of arr[j] with pivot.
+- Test early on small arrays (n=8, n=20) and print both input and sorted output to confirm correctness before running large benchmarks.
+
+5. Integrate & test inside the game
+   - #include "dungeongame/SortingStudent.h" from Game.cpp near the other includes.
+   - Temporarily modify runArraySortBenchmarks() to call your mergeSortArray and quickSortArray instead of the built-in versions, or add a short menu option that calls your student implementations on small sizes for quick testing.
+   - Rebuild: cd dungeongame && make
+   - Run the game and use the small test sizes to validate correctness.
+
+6. Commit and push your work
+   - git checkout -b week11/yourname-sorts
+   - git add dungeongame/src/SortingStudent.* dungeongame/include/dungeongame/SortingStudent.h
+   - git commit -m "student: implement merge and quick sort (starter exercise)"
+   - git push -u origin week11/yourname-sorts
+
+E. Quick paired coding extension (20 minutes)
 Choose one of these small tasks for pairs to work on. Each pair should commit and push their changes to a personal branch (e.g., `week11/quickpivot-{initials}`) and show results to the instructor.
 
 Option A — Median-of-three pivot for QuickSort
@@ -82,7 +166,7 @@ Option B — Add menu toggle to limit algorithms
 Option C — Deterministic inputs
 - Change the benchmark generator to populate arrays with deterministic patterns: sorted, reverse-sorted, nearly-sorted, random. Run the benchmark for each pattern and compare the outcomes.
 
-E. Wrap-up and submission (5 minutes)
+F. Wrap-up and submission (5 minutes)
 1. Students should export their plots and include a 1-page write-up answering the worksheet questions (lab-info/week11/worksheet.md).
 2. If they modified code, each pair should push a branch and submit a short PR or show the instructor locally.
 3. Collect any questions and summarize key takeaways: when to choose O(n log n) sorts, memory trade-offs, and when linear search is acceptable.
