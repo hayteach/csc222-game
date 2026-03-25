@@ -137,6 +137,7 @@ void Game::displayMenu() const {
     cout << "26) Compare bubble vs insertion sort\n";
     cout << "27) Array Sort Benchmarks (CSV output)\n";
     cout << "28) Run all sorts on Inventory (compare)\n";
+    cout << "29) Student sort test (run students' implementations on small inputs)\n";
 
     cout << "Choose an action: ";
 }
@@ -249,6 +250,10 @@ void Game::processChoice(int choice) {
         }
         case 28: {
             runSortInventoryAllDemo();
+            break;
+        }
+        case 29: {
+            runStudentSortTests();
             break;
         }
         default:
