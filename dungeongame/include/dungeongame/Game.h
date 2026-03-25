@@ -92,6 +92,14 @@ private:
     void runSortSearchDemo();
     void runSortCompareDemo();
 
+    // Week 11: Array-based sorting benchmarks and inventory demos
+    // - runArraySortBenchmarks: run bubble/insertion/merge/quick on integer
+    //   arrays using default sizes and print CSV-style results suitable for plotting.
+    // - runSortInventoryAllDemo: run bubble/insertion/merge/quick on copies of
+    //   the player's Inventory and print comparisons + timing.
+    void runArraySortBenchmarks();
+    void runSortInventoryAllDemo();
+
     // Data loading (optional): load initial inventory items from file
     void loadInventoryFromFile(const std::string& path);
 
