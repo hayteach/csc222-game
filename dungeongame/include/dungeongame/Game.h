@@ -25,6 +25,7 @@
 #include "NPCSpawner.h"    // renamed from EnemySpawner.h
 #include "ActionHistory.h"
 #include "SpellEvaluator.h"
+#include "Menu.h"
 
 namespace dungeongame {
 
@@ -49,7 +50,7 @@ private:
     void initMap();
     void placePlayerOnMap();
     void displayMap() const;
-    void displayMenu() const;
+    void displayMenu();
     void processChoice(int choice);
 
     // Combat handling
@@ -64,7 +65,30 @@ private:
     // Lab07 / HW05 activities
     void runLinkedStringLab();      // linked-string ADT demonstration
     void runBagDemo();              // linked-bag template demonstration
-    
+
+    // Week 12 hashing lab activities
+    void runHashingLab();           // Week 12 hashing activity
+    void runGuessHashDemo();        // hash-based number guessing game
+    void runColorHashTableDemo();   // color table hashing demo
+    void runGameElementHashDemo();  // game element hashing demo
+    int computeGuessHash(int k) const;                     // Week 12 hash function helper
+    int computeColorHash(const std::string& color) const;  // Week 12 bin hashing helper
+    int computeGameElementHash(const std::string& key) const; // Week 12 game-element hash helper
+    std::string normalizeString(const std::string& input) const;
+    std::vector<std::string> loadColorListFromFile(const std::string& path) const;
+
+    // Menu helpers (Week 12 menu refactor)
+    void runInventoryMenu();
+    void runDemosMenu();
+    void runLabsMenu();
+    void runMenuScreen(const std::function<MenuScreen(bool&)>& buildMenu);
+    void movePlayer(int dx, int dy);
+    MenuScreen createMainMenu();
+    MenuScreen createInventoryMenu(bool& done);
+    MenuScreen createDemosMenu(bool& done);
+    MenuScreen createLabsMenu(bool& done);
+    MenuScreen buildSubMenu(const std::string& title, bool& done, std::vector<MenuOption> options);
+
     // Loot system (using LinkedBag<Item>)
     void handleLootBag();           // view and transfer loot
     void transferLootToInventory(); // move items from loot bag to inventory

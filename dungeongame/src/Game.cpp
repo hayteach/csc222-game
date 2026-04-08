@@ -15,6 +15,9 @@
 #include "ActionHistory.h"
 #include "SpellEvaluator.h"
 
+#include <algorithm>
+#include <cmath>
+#include <cctype>
 #include <chrono>
 #include <fstream>
 #include <iomanip>
@@ -107,168 +110,118 @@ void Game::displayMap() const {
     }
 }
 
-void Game::displayMenu() const {
-    cout << "\n=== Main Menu ===\n";
-    cout << "1) Move Up\n";
-    cout << "2) Move Down\n";
-    cout << "3) Move Left\n";
-    cout << "4) Move Right\n";
-    cout << "5) Show Stats\n";
-    cout << "6) Quit\n";
-    cout << "7) Encounter Enemy (demo)\n";
-    cout << "8) Prepare Potions (Pointers demo)\n";
-    cout << "9) Show Inventory\n";
-    cout << "10) Use Potion\n";
-    cout << "11) Linked List Demo (Template class demo)\n";
-    cout << "12) Spawn Control (skip N)\n";
-    cout << "13) Action History (undo)\n";
-    cout << "14) Cast Postfix Spell\n";
-    cout << "15) Show Spawn Queue (debug)\n";
-    cout << "16) Show Action History (debug)\n";
-    cout << "17) Pick up item (demo)\n";
-    cout << "18) Drop item (by index)\n";
-    cout << "19) NPC pointer container demo\n";
-    cout << "20) NPC spawner demo\n";
-    cout << "21) Linked String Lab (lab07)\n";
-    cout << "22) Linked Bag Demo (hw05)\n";
-    cout << "23) View Grimoire\n";
-    cout << "24) Loot Bag\n";
-    cout << "25) Sort/Search Demo (inventory)\n";
-    cout << "26) Compare bubble vs insertion sort\n";
-    cout << "27) Array Sort Benchmarks (CSV output)\n";
-    cout << "28) Run all sorts on Inventory (compare)\n";
-    cout << "29) Student sort test (run students' implementations on small inputs)\n";
-
-    cout << "Choose an action: ";
+void Game::displayMenu() {
+    auto menu = createMainMenu();
+    dungeongame::displayMenu(menu);
 }
 
 void Game::processChoice(int choice) {
-    switch (choice) {
-        case 1: {
-            Position prev = player.getPosition();
-            player.move(0, -1);
-            history.pushMove(prev);
-            break;
-        }
-        case 2: {
-            Position prev = player.getPosition();
-            player.move(0, 1);
-            history.pushMove(prev);
-            break;
-        }
-        case 3: {
-            Position prev = player.getPosition();
-            player.move(-1, 0);
-            history.pushMove(prev);
-            break;
-        }
-        case 4: {
-            Position prev = player.getPosition();
-            player.move(1, 0);
-            history.pushMove(prev);
-            break;
-        }
-        case 5: player.displayStats(); break;
-        case 6: running = false; break;
-        case 7: {
-            // Demo encounter: spawn a goblin and start combat
-             NPC goblin("Goblin", 10, 3, 0, 10, 5);
-            cout << "You encounter a Goblin!" << endl;
-            processCombat(goblin);
-            break;
-        }
-        case 8: {
-            // Pointers & dynamic memory demo integrated into game
-            runPointersDemo();
-            break;
-        }
-        case 9: {
-            player.showInventory();
-            break;
-        }
-        case 10: {
-            int prevH = player.getHealth();
-            Item used;
-            int healAmt = 0;
-            if (!player.usePotionAndGet(used, healAmt)) {
-                cout << "No potions available." << endl;
-            } else {
-                history.pushUsePotion(used, prevH);
-            }
-            break;
-        }
-        case 11: {
-            // Template class & linked list demo integrated into game
-            runLinkedListDemo();
-            break;
-        }
-        case 17: {
-            handlePickItem();
-            break;
-        }
-        case 18: {
-            handleDropItem();
-            break;
-        }
-        case 19: {
-            // NPC pointer container demonstration
-            runNPCGroupDemo();
-            break;
-        }
-        case 20: {
-            // NPC spawner pointer demonstration
-            runNPCSpawnerDemo();
-            break;
-        }
-        case 21: {
-            runLinkedStringLab();
-            break;
-        }
-        case 22: {
-            runBagDemo();
-            break;
-        }
-        case 23: {
-            viewGrimoire();
-            break;
-        }
-        case 24: {
-            handleLootBag();
-            break;
-        }
-        case 25: {
-            runSortSearchDemo();
-            break;
-        }
-        case 26: {
-            runSortCompareDemo();
-            break;
-        }
-        case 27: {
-            runArraySortBenchmarks();
-            break;
-        }
-        case 28: {
-            runSortInventoryAllDemo();
-            break;
-        }
-        case 29: {
-            runStudentSortTests();
-            break;
-        }
-        default:
-            if (choice >= 12 && choice <= 16) {
-                if (choice == 12) handleSpawnSkip();
-                else if (choice == 13) handleUndo();
-                else if (choice == 14) handleCastSpell();
-                else if (choice == 15) showSpawnQueue();
-                else if (choice == 16) showActionHistory();
-            } else {
-                cout << "Invalid choice." << endl;
-            }
-            break;
-    }
+    auto menu = createMainMenu();
+    dungeongame::dispatchMenuChoice(menu, choice);
     placePlayerOnMap();
+}
+
+MenuScreen Game::createMainMenu() {
+    return MenuScreen{
+        "Main Menu",
+        {
+            {1, "Move Up", [this] { movePlayer(0, -1); }},
+            {2, "Move Down", [this] { movePlayer(0, 1); }},
+            {3, "Move Left", [this] { movePlayer(-1, 0); }},
+            {4, "Move Right", [this] { movePlayer(1, 0); }},
+            {5, "Show Stats", [this] { player.displayStats(); }},
+            {6, "Inventory", [this] { runInventoryMenu(); }},
+            {7, "Demos", [this] { runDemosMenu(); }},
+            {8, "Labs", [this] { runLabsMenu(); }},
+            {9, "View Grimoire", [this] { viewGrimoire(); }},
+            {10, "Quit", [this] { const_cast<Game*>(this)->running = false; }}
+        }
+    };
+}
+
+MenuScreen Game::createInventoryMenu(bool& done) {
+    return MenuScreen{
+        "Inventory Menu",
+        {
+            {1, "Show Inventory", [this] { player.showInventory(); }},
+            {2, "Use Potion", [this] {
+                int prevH = player.getHealth();
+                Item used;
+                int healAmt = 0;
+                if (!player.usePotionAndGet(used, healAmt)) {
+                    std::cout << "No potions available." << std::endl;
+                } else {
+                    history.pushUsePotion(used, prevH);
+                }
+            }},
+            {3, "Pick Item", [this] { handlePickItem(); }},
+            {4, "Drop Item", [this] { handleDropItem(); }},
+            {5, "Back", [&done] { done = true; }}
+        }
+    };
+}
+
+MenuScreen Game::createDemosMenu(bool& done) {
+    return MenuScreen{
+        "Demos Menu",
+        {
+            {1, "Encounter Enemy", [this] {
+                NPC goblin("Goblin", 10, 3, 0, 10, 5);
+                std::cout << "You encounter a Goblin!" << std::endl;
+                processCombat(goblin);
+            }},
+            {2, "Potions Demo", [this] { runPointersDemo(); }},
+            {3, "Linked List Demo", [this] { runLinkedListDemo(); }},
+            {4, "NPC Group Demo", [this] { runNPCGroupDemo(); }},
+            {5, "NPC Spawner Demo", [this] { runNPCSpawnerDemo(); }},
+            {6, "Show Spawn Queue", [this] { showSpawnQueue(); }},
+            {7, "Show History", [this] { showActionHistory(); }},
+            {8, "Back", [&done] { done = true; }}
+        }
+    };
+}
+
+MenuScreen Game::createLabsMenu(bool& done) {
+    return MenuScreen{
+        "Labs Menu",
+        {
+            {1, "Sort/Search Demo", [this] { runSortSearchDemo(); }},
+            {2, "Compare Sorts", [this] { runSortCompareDemo(); }},
+            {3, "Benchmarks", [this] { runArraySortBenchmarks(); }},
+            {4, "Inventory Sort Demo", [this] { runSortInventoryAllDemo(); }},
+            {5, "Student Tests", [this] { runStudentSortTests(); }},
+            {6, "Hashing Challenge", [this] { runHashingLab(); }},
+            {7, "Back", [&done] { done = true; }}
+        }
+    };
+}
+
+void Game::runMenuScreen(const std::function<MenuScreen(bool&)>& buildMenu) {
+    bool done = false;
+    while (!done) {
+        auto menu = buildMenu(done);
+        dungeongame::displayMenu(menu);
+        int choice = dungeongame::promptMenuChoice();
+        dungeongame::dispatchMenuChoice(menu, choice);
+    }
+}
+
+void Game::runInventoryMenu() {
+    runMenuScreen([this](bool& done) { return createInventoryMenu(done); });
+}
+
+void Game::runDemosMenu() {
+    runMenuScreen([this](bool& done) { return createDemosMenu(done); });
+}
+
+void Game::runLabsMenu() {
+    runMenuScreen([this](bool& done) { return createLabsMenu(done); });
+}
+
+void Game::movePlayer(int dx, int dy) {
+    Position prev = player.getPosition();
+    player.move(dx, dy);
+    history.pushMove(prev);
 }
 
 void Game::processCombat(NPC& enemy) {
@@ -525,6 +478,283 @@ void Game::runBagDemo() {
     cout << "Press Enter to continue...";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
+
+// ------------------------------------------------------
+// Week 12 Hashing Lab
+// ------------------------------------------------------
+void Game::runHashingLab() {
+    cout << "\n--- Hashing Challenge (Week 12) ---" << endl;
+    cout << "This activity includes both a number hashing game and a color hash table demo." << endl;
+
+    bool done = false;
+    while (!done) {
+        cout << "\nHashing Challenge Menu:\n";
+        cout << "1) Number hashing guess game\n";
+        cout << "2) Color hash table demo\n";
+        cout << "3) Game element hashing demo\n";
+        cout << "0) Return to main menu\n";
+        cout << "Choose an option: ";
+
+        int mode = 0;
+        if (!(cin >> mode)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Please enter a number." << endl;
+            continue;
+        }
+
+        switch (mode) {
+            case 1:
+                runGuessHashDemo();
+                break;
+            case 2:
+                runColorHashTableDemo();
+                break;
+            case 3:
+                runGameElementHashDemo();
+                break;
+            case 0:
+                done = true;
+                break;
+            default:
+                cout << "Invalid choice." << endl;
+                break;
+        }
+    }
+}
+
+// Week 12 hash function helper (alternative formula, not the homework lab formula)
+int Game::computeGuessHash(int k) const {
+    constexpr int A = 127;
+    constexpr int B = 41;
+    constexpr int MOD = 100;
+    int mixed = (k * A + B) % MOD;
+    return mixed / 10;  // map result into 0-9 range
+}
+
+std::string Game::normalizeString(const std::string& input) const {
+    std::string output = input;
+    for (char& c : output) {
+        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    }
+    return output;
+}
+
+// Week 12 color table hashing helper
+int Game::computeColorHash(const std::string& color) const {
+    int sum = 0;
+    std::string normalized = normalizeString(color);
+    for (char c : normalized) {
+        if (c != ' ') {
+            sum += static_cast<unsigned char>(c);
+        }
+    }
+    return sum % 15;
+}
+
+// Week 12 game element hashing helper
+int Game::computeGameElementHash(const std::string& key) const {
+    int hash = 0;
+    std::string normalized = normalizeString(key);
+    for (char c : normalized) {
+        if (std::isalnum(static_cast<unsigned char>(c))) {
+            hash = (hash * 31 + static_cast<unsigned char>(c)) % 100;
+        }
+    }
+    return hash % 10; // map to 10 bins for game element hashing
+}
+
+void Game::runGameElementHashDemo() {
+    cout << "\n--- Game Element Hashing Demo ---" << endl;
+    cout << "This demo hashes your current inventory item names into bins." << endl;
+
+    const int binCount = 10;
+    std::vector<std::vector<std::string>> table(binCount);
+    int count = static_cast<int>(player.inventorySize());
+    if (count == 0) {
+        cout << "Your inventory is empty. Add an item first or restart the game with inventory items." << endl;
+        return;
+    }
+
+    for (size_t i = 0; i < player.inventorySize(); ++i) {
+        const auto& item = player[i];
+        int bin = computeGameElementHash(item.name);
+        table[bin].push_back(item.name);
+    }
+
+    cout << "\nInventory item hash bins:\n";
+    for (int i = 0; i < binCount; ++i) {
+        cout << "  Bin " << i << " (" << table[i].size() << "): ";
+        for (size_t j = 0; j < table[i].size(); ++j) {
+            cout << table[i][j];
+            if (j + 1 < table[i].size()) cout << ", ";
+        }
+        cout << "\n";
+    }
+
+    cin.ignore(10000, '\n');
+    while (true) {
+        cout << "\nEnter an inventory item name to search (or type 'quit' to return): ";
+        std::string query;
+        std::getline(cin, query);
+        if (query.empty()) continue;
+        std::string normalized = normalizeString(query);
+        if (normalized == "quit") break;
+
+        int bin = computeGameElementHash(query);
+        bool found = false;
+        for (const std::string& name : table[bin]) {
+            if (normalizeString(name) == normalized) {
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            cout << "Found '" << query << "' in inventory bin " << bin << "." << endl;
+            cout << "This demonstrates how inventory item names can be grouped by a hash function." << endl;
+        } else {
+            cout << "'" << query << "' is not in inventory. "
+                 << "If you want, add the item to your inventory manually in the game." << endl;
+        }
+    }
+}
+
+// Week 12 helper: load sample color data for the hash table demo
+std::vector<std::string> Game::loadColorListFromFile(const std::string& path) const {
+    std::vector<std::string> colors;
+    std::ifstream in(path);
+    if (!in) {
+        std::string altPath = "dungeongame/" + path;
+        in.open(altPath);
+    }
+    if (!in) {
+        return colors;
+    }
+    std::string line;
+    while (std::getline(in, line)) {
+        if (line.empty()) continue;
+        colors.push_back(line);
+    }
+    return colors;
+}
+
+void Game::runGuessHashDemo() {
+    cout << "\n--- Number Hashing Guess Game ---" << endl;
+    cout << "A hidden value is chosen between 0 and 99. Your guesses are compared by hash values." << endl;
+    cout << "If your guess hash matches the target hash, the game will tell you.\n";
+
+    int target = rand() % 100;
+    int targetHash = computeGuessHash(target);
+    int tries = 0;
+
+    while (true) {
+        cout << "Enter a guess between 0 and 99 (or -1 to stop): ";
+        int guess = 0;
+        if (!(cin >> guess)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Please enter a number." << endl;
+            continue;
+        }
+        if (guess == -1) {
+            cout << "Stopping the hashing game. The hidden value was " << target << "." << endl;
+            break;
+        }
+        if (guess < 0 || guess > 99) {
+            cout << "Please guess a number between 0 and 99." << endl;
+            continue;
+        }
+
+        ++tries;
+        int guessHash = computeGuessHash(guess);
+        cout << "  Guess hash: " << guessHash << endl;
+
+        if (guessHash == targetHash) {
+            if (guess == target) {
+                cout << "\n*** Found it! ***" << endl;
+                cout << "Original target value: " << target << endl;
+                cout << "Target hashed value: " << targetHash << endl;
+                cout << "Final guess: " << guess << endl;
+                cout << "Final guess hash: " << guessHash << endl;
+                cout << "Total tries: " << tries << endl;
+                break;
+            } else {
+                cout << "Hash collision! Your guess shares the same hash value, but it is not the hidden number." << endl;
+            }
+        } else {
+            cout << "No match yet. Keep trying." << endl;
+        }
+    }
+}
+
+void Game::runColorHashTableDemo() {
+    cout << "\n--- Color Hash Table Demo ---" << endl;
+    std::vector<std::string> colors = loadColorListFromFile("data/ColorList.txt");
+    if (colors.empty()) {
+        colors = {"red", "orange", "yellow", "green", "blue", "indigo", "violet",
+                  "black", "white", "gray", "cyan", "magenta", "maroon",
+                  "olive", "teal", "navy", "lime", "pink", "brown", "silver", "gold", "beige"};
+        cout << "Could not open ColorList.txt; using built-in sample colors." << endl;
+    }
+
+    const int binCount = 15;
+    std::vector<std::vector<std::string>> table(binCount);
+    for (const std::string& color : colors) {
+        int bin = computeColorHash(color);
+        table[bin].push_back(color);
+    }
+
+    int nonEmptyBins = 0;
+    int maxBinSize = 0;
+    int totalInNonEmpty = 0;
+    cout << "\nHash table bins:\n";
+    for (int i = 0; i < binCount; ++i) {
+        int size = static_cast<int>(table[i].size());
+        if (size > 0) {
+            nonEmptyBins++;
+            totalInNonEmpty += size;
+        }
+        maxBinSize = std::max(maxBinSize, size);
+        cout << "  Bin " << i << " (" << size << "): ";
+        for (size_t j = 0; j < table[i].size(); ++j) {
+            cout << table[i][j];
+            if (j + 1 < table[i].size()) cout << ", ";
+        }
+        cout << "\n";
+    }
+
+    double average = nonEmptyBins > 0 ? static_cast<double>(totalInNonEmpty) / nonEmptyBins : 0.0;
+    cout << "\nAverage colors per non-empty bin: " << average << endl;
+    cout << "Maximum colors in a single bin: " << maxBinSize << endl;
+
+    cin.ignore(10000, '\n');
+    while (true) {
+        cout << "\nEnter a color to search for (or type 'quit' to return): ";
+        std::string query;
+        std::getline(cin, query);
+        if (query.empty()) continue;
+        std::string normalized = normalizeString(query);
+        if (normalized == "quit") break;
+
+        int bin = computeColorHash(query);
+        bool found = false;
+        for (const std::string& entry : table[bin]) {
+            if (normalizeString(entry) == normalized) {
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            cout << "Found '" << query << "' in bin " << bin << "." << endl;
+        } else {
+            table[bin].push_back(query);
+            cout << "'" << query << "' was not found. Added to bin " << bin << "." << endl;
+        }
+    }
+}
+
 // ---------------- Week 04 helper implementations ----------------
 
 void Game::handleSpawnSkip()
