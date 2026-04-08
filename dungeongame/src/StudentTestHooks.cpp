@@ -16,19 +16,19 @@ void Game::runStudentSortTests() {
     std::cout << "\n";
 
     auto arr1 = small;
-    auto t0 = steady_clock::now();
+    auto t0 = std::chrono::steady_clock::now();
     size_t compsM = mergeSortArray(arr1);
-    auto t1 = steady_clock::now();
-    auto usM = duration_cast<microseconds>(t1 - t0).count();
+    auto t1 = std::chrono::steady_clock::now();
+    auto usM = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
     std::cout << "MergeSort result: ";
     for (int x : arr1) std::cout << x << " ";
     std::cout << "\n  comps=" << compsM << " time_us=" << usM << "\n";
 
     auto arr2 = small;
-    t0 = steady_clock::now();
+    t0 = std::chrono::steady_clock::now();
     size_t compsQ = quickSortArray(arr2);
-    t1 = steady_clock::now();
-    auto usQ = duration_cast<microseconds>(t1 - t0).count();
+    t1 = std::chrono::steady_clock::now();
+    auto usQ = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
     std::cout << "QuickSort result: ";
     for (int x : arr2) std::cout << x << " ";
     std::cout << "\n  comps=" << compsQ << " time_us=" << usQ << "\n";

@@ -906,18 +906,18 @@ void Game::runArraySortBenchmarks() {
 
         // Merge
         auto arr3 = base;
-        auto t0 = steady_clock::now();
+        auto t0 = std::chrono::steady_clock::now();
         size_t comps3 = mergeSortArray(arr3);
-        auto t1 = steady_clock::now();
-        auto us3 = duration_cast<microseconds>(t1 - t0).count();
+        auto t1 = std::chrono::steady_clock::now();
+        auto us3 = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
         cout << s << ",merge," << us3 << "," << comps3 << "\n";
 
         // Quick
         auto arr4 = base;
-        t0 = steady_clock::now();
+        t0 = std::chrono::steady_clock::now();
         size_t comps4 = quickSortArray(arr4);
-        t1 = steady_clock::now();
-        auto us4 = duration_cast<microseconds>(t1 - t0).count();
+        t1 = std::chrono::steady_clock::now();
+        auto us4 = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
         cout << s << ",quick," << us4 << "," << comps4 << "\n";
 
         // Small sanity check: print first 5 of merge-sorted array
@@ -1047,8 +1047,8 @@ void Game::runSortInventoryAllDemo() {
     {
         auto t0 = steady_clock::now();
         auto res = bubbleItems(base);
-        auto t1 = steady_clock::now();
-        auto us = duration_cast<microseconds>(t1 - t0).count();
+        auto t1 = std::chrono::steady_clock::now();
+        auto us = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
         cout << "Bubble sort:\n";
         for (size_t i = 0; i < res.first.size(); ++i) cout << "  " << i << ") " << res.first[i].name << " (" << res.first[i].value << ")\n";
         cout << "  Comparisons: " << res.second << "  Time: " << us << " microseconds\n\n";
