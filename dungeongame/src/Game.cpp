@@ -194,7 +194,8 @@ MenuScreen Game::createLabsMenu(bool& done) {
             {5, "Student Tests", [this] { runStudentSortTests(); }},
             {6, "Hashing Challenge", [this] { runHashingLab(); }},
             {7, "Graph Search Demo", [this] { runGraphSearchLab(); }},
-            {8, "Back", [&done] { done = true; }}
+            {8, "Shortest Distance Lab", [this] { runShortestDistanceLab(); }},
+            {9, "Back", [&done] { done = true; }}
         }
     };
 }
@@ -558,6 +559,206 @@ void Game::runRandomGraphMapDemo() {
 
     cout << "\nNote: BFS finds the shortest route, while DFS finds a path by exploring one branch deeply." << endl;
 }
+
+// Week 14 shortest-distance / traveling salesman lab
+// These methods were added for Week 14 to demonstrate weighted graph
+// route planning with Dijkstra's shortest path and a simple Traveling Salesman
+// nearest-neighbor heuristic.
+void Game::runShortestDistanceLab() {
+    bool done = false;
+    while (!done) {
+        MenuScreen menu{
+            "Week 14 Shortest Distance Lab",
+            {
+                {1, "Dijkstra Shortest Distances", [this] { runDijkstraDistanceDemo(); }},
+                {2, "Traveling Salesman Challenge", [this] { runTravelingSalesmanDemo(); }},
+                {3, "Back", [&done] { done = true; }}
+            }
+        };
+        dungeongame::displayMenu(menu);
+        int choice = dungeongame::promptMenuChoice();
+        dungeongame::dispatchMenuChoice(menu, choice);
+    }
+}
+
+std::vector<int> Game::computeDijkstraDistances(const std::vector<std::vector<int>>& graph, int start, std::vector<int>& prev) const {
+    const int INF = std::numeric_limits<int>::max() / 4;
+    int n = static_cast<int>(graph.size());
+    std::vector<int> dist(n, INF);
+    prev.assign(n, -1);
+    std::vector<bool> visited(n, false);
+
+    dist[start] = 0;
+    for (int step = 0; step < n; ++step) {
+        int node = -1;
+        int best = INF;
+        for (int i = 0; i < n; ++i) {
+            if (!visited[i] && dist[i] < best) {
+                best = dist[i];
+                node = i;
+            }
+        }
+
+        if (node == -1) {
+            break;
+        }
+
+        visited[node] = true;
+        for (int neighbor = 0; neighbor < n; ++neighbor) {
+            int weight = graph[node][neighbor];
+            if (weight > 0 && !visited[neighbor]) {
+                int candidate = dist[node] + weight;
+                if (candidate < dist[neighbor]) {
+                    dist[neighbor] = candidate;
+                    prev[neighbor] = node;
+                }
+            }
+        }
+    }
+
+    return dist;
+}
+
+std::vector<int> Game::reconstructPath(int goal, const std::vector<int>& prev) const {
+    std::vector<int> path;
+    for (int current = goal; current != -1; current = prev[current]) {
+        path.push_back(current);
+    }
+    std::reverse(path.begin(), path.end());
+    return path;
+}
+
+std::vector<int> Game::solveTSPNearestNeighbor(const std::vector<std::vector<int>>& distances, int start) const {
+    int n = static_cast<int>(distances.size());
+    const int INF = std::numeric_limits<int>::max() / 4;
+    std::vector<bool> visited(n, false);
+    std::vector<int> path;
+
+    int current = start;
+    visited[current] = true;
+    path.push_back(current);
+
+    for (int step = 1; step < n; ++step) {
+        int nextNode = -1;
+        int bestWeight = INF;
+
+        for (int candidate = 0; candidate < n; ++candidate) {
+            if (!visited[candidate] && distances[current][candidate] > 0 && distances[current][candidate] < bestWeight) {
+                bestWeight = distances[current][candidate];
+                nextNode = candidate;
+            }
+        }
+
+        if (nextNode == -1) {
+            return {};
+        }
+
+        visited[nextNode] = true;
+        path.push_back(nextNode);
+        current = nextNode;
+    }
+
+    if (distances[current][start] <= 0) {
+        return {};
+    }
+
+    path.push_back(start);
+    return path;
+}
+
+void Game::runDijkstraDistanceDemo() {
+    std::vector<std::vector<int>> graph = {
+        {0, 2, 4, 6, 0, 0, 0},
+        {0, 0, 5, 0, 3, 0, 0},
+        {0, 0, 0, 1, 2, 0, 0},
+        {0, 0, 2, 0, 0, 3, 0},
+        {0, 0, 0, 0, 0, 5, 1},
+        {0, 0, 0, 0, 0, 0, 2},
+        {0, 0, 0, 0, 0, 0, 0}
+    };
+
+    int source = 0;
+    std::vector<int> prev;
+    std::vector<int> distances = computeDijkstraDistances(graph, source, prev);
+    const int INF = std::numeric_limits<int>::max() / 4;
+
+    cout << "\n--- Week 14 Shortest Distance Lab: Dijkstra Demo ---" << endl;
+    cout << "This scenario models a game courier planning the fastest route to reach quest locations." << endl;
+    cout << "Graph edges (directed):" << endl;
+    for (int i = 0; i < static_cast<int>(graph.size()); ++i) {
+        for (int j = 0; j < static_cast<int>(graph[i].size()); ++j) {
+            if (graph[i][j] > 0) {
+                cout << "  " << i << " -> " << j << " (weight " << graph[i][j] << ")" << endl;
+            }
+        }
+    }
+
+    cout << "\nShortest distance from node " << source << " to every other node:" << endl;
+    for (int target = 0; target < static_cast<int>(graph.size()); ++target) {
+        if (target == source) {
+            continue;
+        }
+
+        if (distances[target] >= INF) {
+            cout << "  Node " << target << " is unreachable." << endl;
+            continue;
+        }
+
+        std::vector<int> path = reconstructPath(target, prev);
+        cout << "  To " << target << ": distance = " << distances[target] << ", path = ";
+        for (int i = 0; i < static_cast<int>(path.size()); ++i) {
+            if (i > 0) cout << " -> ";
+            cout << path[i];
+        }
+        cout << endl;
+    }
+}
+
+void Game::runTravelingSalesmanDemo() {
+    std::vector<std::vector<int>> distances = {
+        {0, 2, 9, 10, 7},
+        {2, 0, 6, 4, 3},
+        {9, 6, 0, 8, 5},
+        {10, 4, 8, 0, 1},
+        {7, 3, 5, 1, 0}
+    };
+
+    int start = 0;
+    std::vector<int> tour = solveTSPNearestNeighbor(distances, start);
+
+    cout << "\n--- Week 14 Traveling Salesman Challenge ---" << endl;
+    cout << "This scenario models an adventurer or merchant visiting all required locations" << endl;
+    cout << "and then returning home with the shortest possible route." << endl;
+    cout << "\nDistance matrix:" << endl;
+    for (int i = 0; i < static_cast<int>(distances.size()); ++i) {
+        cout << "  ";
+        for (int j = 0; j < static_cast<int>(distances[i].size()); ++j) {
+            cout << distances[i][j] << (j + 1 < static_cast<int>(distances[i].size()) ? " ": "");
+        }
+        cout << endl;
+    }
+
+    if (tour.empty()) {
+        cout << "No complete TSP tour could be found with the current heuristic." << endl;
+        return;
+    }
+
+    int totalDistance = 0;
+    for (int i = 1; i < static_cast<int>(tour.size()); ++i) {
+        int from = tour[i - 1];
+        int to = tour[i];
+        totalDistance += distances[from][to];
+    }
+
+    cout << "\nTraveling Salesman tour starting at node " << start << ":" << endl;
+    for (int i = 0; i < static_cast<int>(tour.size()); ++i) {
+        if (i > 0) cout << " -> ";
+        cout << tour[i];
+    }
+    cout << "\nTotal tour distance: " << totalDistance << endl;
+    cout << "This route approximates the TSP with a greedy nearest-neighbor strategy." << endl;
+}
+// End of Week 14 lab methods.
 
 void Game::movePlayer(int dx, int dy) {
     Position prev = player.getPosition();

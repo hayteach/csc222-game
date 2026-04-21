@@ -88,6 +88,16 @@ private:
     std::vector<Position> breadthFirstSearch(const std::vector<std::string>& map, const Position& start, const Position& goal) const;
     std::vector<Position> depthFirstSearch(const std::vector<std::string>& map, const Position& start, const Position& goal) const;
 
+    // Week 14 shortest-distance / traveling salesman lab activities
+    // These methods support Dijkstra's shortest path and a simple Traveling
+    // Salesman route planning heuristic.
+    void runShortestDistanceLab();
+    void runDijkstraDistanceDemo();
+    void runTravelingSalesmanDemo();
+    std::vector<int> computeDijkstraDistances(const std::vector<std::vector<int>>& graph, int start, std::vector<int>& prev) const;
+    std::vector<int> reconstructPath(int goal, const std::vector<int>& prev) const;
+    std::vector<int> solveTSPNearestNeighbor(const std::vector<std::vector<int>>& distances, int start) const;
+
     // Menu helpers (Week 12 menu refactor)
     void runInventoryMenu();
     void runDemosMenu();
