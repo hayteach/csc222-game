@@ -98,6 +98,26 @@ private:
     std::vector<int> reconstructPath(int goal, const std::vector<int>& prev) const;
     std::vector<int> solveTSPNearestNeighbor(const std::vector<std::vector<int>>& distances, int start) const;
 
+    // Week 15 binary tree lab activities
+    // These methods support recursive tree node counting and single-parent detection.
+    struct BinaryTreeNode {
+        int value;
+        std::string description;
+        BinaryTreeNode* left;
+        BinaryTreeNode* right;
+        BinaryTreeNode(int v, const std::string& desc)
+            : value(v), description(desc), left(nullptr), right(nullptr) {}
+    };
+    void runBinaryTreeLab();
+    void runBinaryTreeCountDemo();
+    void runBinaryTreeSingleParentDemo();
+    BinaryTreeNode* createSampleBinaryTree() const;
+    void printDecisionTree(const BinaryTreeNode* root, int depth = 0) const;
+    void deleteBinaryTree(BinaryTreeNode* root) const;
+    int countTreeNodes(const BinaryTreeNode* root) const;
+    int countTreeLeaves(const BinaryTreeNode* root) const;
+    int countSingleParentNodes(const BinaryTreeNode* root) const;
+
     // Menu helpers (Week 12 menu refactor)
     void runInventoryMenu();
     void runDemosMenu();

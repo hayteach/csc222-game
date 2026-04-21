@@ -195,7 +195,8 @@ MenuScreen Game::createLabsMenu(bool& done) {
             {6, "Hashing Challenge", [this] { runHashingLab(); }},
             {7, "Graph Search Demo", [this] { runGraphSearchLab(); }},
             {8, "Shortest Distance Lab", [this] { runShortestDistanceLab(); }},
-            {9, "Back", [&done] { done = true; }}
+            {9, "Binary Tree Lab", [this] { runBinaryTreeLab(); }},
+            {10, "Back", [&done] { done = true; }}
         }
     };
 }
@@ -758,7 +759,122 @@ void Game::runTravelingSalesmanDemo() {
     cout << "\nTotal tour distance: " << totalDistance << endl;
     cout << "This route approximates the TSP with a greedy nearest-neighbor strategy." << endl;
 }
-// End of Week 14 lab methods.
+
+// Week 15 binary tree lab
+// These methods were added for Week 15 to demonstrate recursive tree
+// counting and single-parent node analysis in a game decision tree.
+void Game::runBinaryTreeLab() {
+    bool done = false;
+    while (!done) {
+        MenuScreen menu{
+            "Week 15 Binary Tree Lab",
+            {
+                {1, "Node & Leaf Count Demo", [this] { runBinaryTreeCountDemo(); }},
+                {2, "Single-Parent Node Demo", [this] { runBinaryTreeSingleParentDemo(); }},
+                {3, "Back", [&done] { done = true; }}
+            }
+        };
+        dungeongame::displayMenu(menu);
+        int choice = dungeongame::promptMenuChoice();
+        dungeongame::dispatchMenuChoice(menu, choice);
+    }
+}
+
+Game::BinaryTreeNode* Game::createSampleBinaryTree() const {
+    BinaryTreeNode* root = new BinaryTreeNode(1, "Start quest: Enter the haunted forest");
+    root->left = new BinaryTreeNode(2, "Take the left path toward the glowing ruins");
+    root->right = new BinaryTreeNode(3, "Take the right path toward the river");
+    root->left->left = new BinaryTreeNode(4, "Search the abandoned cabin");
+    root->left->left->left = new BinaryTreeNode(5, "Find the hidden treasure");
+    root->left->left->right = new BinaryTreeNode(6, "Encounter the cave guardian");
+    root->left->right = new BinaryTreeNode(7, "Follow the trail to the old oak");
+    root->left->right->left = new BinaryTreeNode(8, "Discover the secret passage");
+    root->right->left = new BinaryTreeNode(9, "Cross the river to reach the ancient altar");
+    return root;
+}
+
+void Game::printDecisionTree(const BinaryTreeNode* root, int depth) const {
+    if (!root) {
+        return;
+    }
+    cout << std::string(depth * 2, ' ') << "- " << root->description << "\n";
+    printDecisionTree(root->left, depth + 1);
+    printDecisionTree(root->right, depth + 1);
+}
+
+void Game::deleteBinaryTree(BinaryTreeNode* root) const {
+    if (!root) {
+        return;
+    }
+    deleteBinaryTree(root->left);
+    deleteBinaryTree(root->right);
+    delete root;
+}
+
+int Game::countTreeNodes(const Game::BinaryTreeNode* root) const {
+    if (root == nullptr) {
+        return 0;
+    }
+    return 1 + countTreeNodes(root->left) + countTreeNodes(root->right);
+}
+
+int Game::countTreeLeaves(const Game::BinaryTreeNode* root) const {
+    if (root == nullptr) {
+        return 0;
+    }
+    if (root->left == nullptr && root->right == nullptr) {
+        return 1;
+    }
+    return countTreeLeaves(root->left) + countTreeLeaves(root->right);
+}
+
+int Game::countSingleParentNodes(const Game::BinaryTreeNode* root) const {
+    if (root == nullptr) {
+        return 0;
+    }
+    int count = 0;
+    bool hasLeft = root->left != nullptr;
+    bool hasRight = root->right != nullptr;
+    if (hasLeft ^ hasRight) {
+        count = 1;
+    }
+    return count + countSingleParentNodes(root->left) + countSingleParentNodes(root->right);
+}
+
+void Game::runBinaryTreeCountDemo() {
+    Game::BinaryTreeNode* root = createSampleBinaryTree();
+    cout << "\n--- Week 15 Binary Tree Count Demo ---" << endl;
+    cout << "This demo uses a quest decision tree to show recursive node and leaf counting." << endl;
+    cout << "The tree below represents a game decision flow for the hero." << endl;
+    printDecisionTree(root);
+
+    int totalNodes = countTreeNodes(root);
+    int leafCount = countTreeLeaves(root);
+
+    cout << "\nTotal tree nodes: " << totalNodes << endl;
+    cout << "Total leaf nodes: " << leafCount << endl;
+    cout << "Leaves represent final quest outcomes or end points in the decision tree." << endl;
+
+    deleteBinaryTree(root);
+}
+
+void Game::runBinaryTreeSingleParentDemo() {
+    Game::BinaryTreeNode* root = createSampleBinaryTree();
+    cout << "\n--- Week 15 Binary Tree Single-Parent Demo ---" << endl;
+    cout << "This demo finds nodes that have exactly one child, similar to a one-way" << endl;
+    cout << "decision point in a game quest tree." << endl;
+    cout << "The tree below represents the same quest decision flow." << endl;
+    printDecisionTree(root);
+
+    int singleParents = countSingleParentNodes(root);
+
+    cout << "\nSingle-parent nodes: " << singleParents << endl;
+    cout << "These nodes represent choices with only one continuation path." << endl;
+
+    deleteBinaryTree(root);
+}
+
+// End of Week 15 methods
 
 void Game::movePlayer(int dx, int dy) {
     Position prev = player.getPosition();
