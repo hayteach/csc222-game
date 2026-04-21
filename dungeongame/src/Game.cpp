@@ -20,9 +20,11 @@
 #include <cctype>
 #include <chrono>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <queue>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -191,7 +193,8 @@ MenuScreen Game::createLabsMenu(bool& done) {
             {4, "Inventory Sort Demo", [this] { runSortInventoryAllDemo(); }},
             {5, "Student Tests", [this] { runStudentSortTests(); }},
             {6, "Hashing Challenge", [this] { runHashingLab(); }},
-            {7, "Back", [&done] { done = true; }}
+            {7, "Graph Search Demo", [this] { runGraphSearchLab(); }},
+            {8, "Back", [&done] { done = true; }}
         }
     };
 }
@@ -216,6 +219,344 @@ void Game::runDemosMenu() {
 
 void Game::runLabsMenu() {
     runMenuScreen([this](bool& done) { return createLabsMenu(done); });
+}
+
+// Week 13 Graph Search Lab
+// These methods were added for the Week 13 lesson to demonstrate BFS and DFS
+// exploration inside the dungeon game using a small demo map.
+//
+// BFS explores the dungeon by visiting nearby tiles first and is best when
+// the goal is to find the shortest path in an unweighted grid.
+// DFS explores one branch as deeply as possible and is useful when the goal
+// is to investigate a path or search until a dead end.
+void Game::runGraphSearchLab() {
+    bool done = false;
+    while (!done) {
+        MenuScreen menu{
+            "Graph Search Lab",
+            {
+                {1, "BFS Path Demo", [this] { runBFSPathDemo(); }},
+                {2, "DFS Explore Demo", [this] { runDFSExploreDemo(); }},
+                {3, "Random Graph Search Demo", [this] { runRandomGraphMapDemo(); }},
+                {4, "Back", [&done] { done = true; }}
+            }
+        };
+        dungeongame::displayMenu(menu);
+        int choice = dungeongame::promptMenuChoice();
+        dungeongame::dispatchMenuChoice(menu, choice);
+    }
+}
+
+std::vector<Position> Game::getNeighbors(const std::vector<std::string>& map, const Position& current) const {
+    std::vector<Position> neighbors;
+    const int directions[4][2] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+
+    for (int i = 0; i < 4; ++i) {
+        int nx = current.x + directions[i][0];
+        int ny = current.y + directions[i][1];
+
+        if (ny < 0 || ny >= static_cast<int>(map.size())) continue;
+        if (nx < 0 || nx >= static_cast<int>(map[ny].size())) continue;
+        if (map[ny][nx] == '#') continue;
+
+        neighbors.push_back({nx, ny});
+    }
+
+    return neighbors;
+}
+
+std::vector<Position> Game::breadthFirstSearch(const std::vector<std::string>& map, const Position& start, const Position& goal) const {
+    int rows = static_cast<int>(map.size());
+    int cols = static_cast<int>(map[0].size());
+
+    // BFS uses a queue so it explores all tiles at one distance before moving
+    // to tiles that are farther away. This guarantees the first path found to
+    // the goal is the shortest path in an unweighted grid.
+    std::vector<std::vector<bool>> visited(rows, std::vector<bool>(cols, false));
+    std::vector<std::vector<Position>> parent(rows, std::vector<Position>(cols, {-1, -1}));
+    std::queue<Position> frontier;
+
+    frontier.push(start);
+    visited[start.y][start.x] = true;
+
+    while (!frontier.empty()) {
+        Position current = frontier.front();
+        frontier.pop();
+
+        if (current.x == goal.x && current.y == goal.y) {
+            break;
+        }
+
+        for (const Position& neighbor : getNeighbors(map, current)) {
+            if (!visited[neighbor.y][neighbor.x]) {
+                visited[neighbor.y][neighbor.x] = true;
+                parent[neighbor.y][neighbor.x] = current;
+                frontier.push(neighbor);
+            }
+        }
+    }
+
+    if (!visited[goal.y][goal.x]) {
+        return {};
+    }
+
+    std::vector<Position> path;
+    Position current = goal;
+    while (!(current.x == -1 && current.y == -1)) {
+        path.push_back(current);
+        current = parent[current.y][current.x];
+    }
+    std::reverse(path.begin(), path.end());
+    return path;
+}
+
+std::vector<Position> Game::depthFirstSearch(const std::vector<std::string>& map, const Position& start, const Position& goal) const {
+    int rows = static_cast<int>(map.size());
+    int cols = static_cast<int>(map[0].size());
+
+    // DFS uses recursion (a stack) to explore one branch deeply before moving to
+    // another branch. It is useful for exploring a maze or searching for any path
+    // to the goal, even when it is not the shortest path.
+    std::vector<std::vector<bool>> visited(rows, std::vector<bool>(cols, false));
+    std::vector<Position> path;
+    bool found = false;
+
+    std::function<void(const Position&)> dfs = [&](const Position& current) {
+        if (found) {
+            return;
+        }
+
+        visited[current.y][current.x] = true;
+        path.push_back(current);
+
+        if (current.x == goal.x && current.y == goal.y) {
+            found = true;
+            return;
+        }
+
+        for (const Position& neighbor : getNeighbors(map, current)) {
+            if (!visited[neighbor.y][neighbor.x]) {
+                dfs(neighbor);
+                if (found) {
+                    return;
+                }
+            }
+        }
+
+        if (!found) {
+            path.pop_back();
+        }
+    };
+
+    dfs(start);
+    return found ? path : std::vector<Position>{};
+}
+
+void Game::runBFSPathDemo() {
+    // This demo uses BFS to find the shortest path from P to E.
+    // BFS explores the dungeon evenly, so the first path found is the shortest.
+    // The map below contains an open route around the wall barrier.
+    std::vector<std::string> graphMap = {
+        "##########",
+        "#P..#...E#",
+        "#.#....#.#",
+        "#...#....#",
+        "##########"
+    };
+
+    Position start{-1, -1};
+    Position goal{-1, -1};
+    for (int y = 0; y < static_cast<int>(graphMap.size()); ++y) {
+        for (int x = 0; x < static_cast<int>(graphMap[y].size()); ++x) {
+            if (graphMap[y][x] == 'P') {
+                start = {x, y};
+            }
+            if (graphMap[y][x] == 'E') {
+                goal = {x, y};
+            }
+        }
+    }
+
+    if (start.x == -1 || goal.x == -1) {
+        cout << "Could not locate start or exit on the demo map." << endl;
+        return;
+    }
+
+    std::vector<Position> path = breadthFirstSearch(graphMap, start, goal);
+    if (path.empty()) {
+        cout << "BFS did not find a path to the exit." << endl;
+        return;
+    }
+
+    std::vector<std::string> displayMap = graphMap;
+    for (const Position& step : path) {
+        if (displayMap[step.y][step.x] == '.') {
+            displayMap[step.y][step.x] = '*';
+        }
+    }
+
+    cout << "\n--- BFS Path Demo ---" << endl;
+    cout << "Path length: " << path.size() << " steps" << endl;
+    cout << "BFS visited the shortest path from P to E." << endl;
+    for (const std::string& row : displayMap) {
+        cout << row << endl;
+    }
+    cout << "Path coordinates:" << endl;
+    for (const Position& step : path) {
+        cout << "  (" << step.x << ", " << step.y << ")" << endl;
+    }
+}
+
+void Game::runDFSExploreDemo() {
+    // This demo uses DFS to explore one branch deeply and find a path to E.
+    // DFS is useful for exploring a maze or walking down corridors to a dead end.
+    // The same reachable map is used here so students can compare the two algorithms.
+    std::vector<std::string> graphMap = {
+        "##########",
+        "#P..#...E#",
+        "#.#....#.#",
+        "#...#....#",
+        "##########"
+    };
+
+    Position start{-1, -1};
+    Position goal{-1, -1};
+    for (int y = 0; y < static_cast<int>(graphMap.size()); ++y) {
+        for (int x = 0; x < static_cast<int>(graphMap[y].size()); ++x) {
+            if (graphMap[y][x] == 'P') {
+                start = {x, y};
+            }
+            if (graphMap[y][x] == 'E') {
+                goal = {x, y};
+            }
+        }
+    }
+
+    if (start.x == -1 || goal.x == -1) {
+        cout << "Could not locate start or exit on the demo map." << endl;
+        return;
+    }
+
+    std::vector<Position> path = depthFirstSearch(graphMap, start, goal);
+    if (path.empty()) {
+        cout << "DFS did not find a path to the exit." << endl;
+        return;
+    }
+
+    std::vector<std::string> displayMap = graphMap;
+    for (const Position& step : path) {
+        if (displayMap[step.y][step.x] == '.') {
+            displayMap[step.y][step.x] = '*';
+        }
+    }
+
+    cout << "\n--- DFS Explore Demo ---" << endl;
+    cout << "DFS exploration path length: " << path.size() << " steps" << endl;
+    cout << "DFS followed one branch deeply until the exit was found." << endl;
+    for (const std::string& row : displayMap) {
+        cout << row << endl;
+    }
+    cout << "Path coordinates:" << endl;
+    for (const Position& step : path) {
+        cout << "  (" << step.x << ", " << step.y << ")" << endl;
+    }
+}
+
+std::vector<std::string> Game::createRandomGraphMap(int rows, int cols, Position& start, Position& goal, int openChance) const {
+    std::vector<std::string> map(rows, std::string(cols, '#'));
+
+    start = {1, 1};
+    goal = {cols - 2, rows - 2};
+    int x = start.x;
+    int y = start.y;
+    map[y][x] = 'P';
+
+    // Carve one guaranteed path between P and E.
+    while (x != goal.x || y != goal.y) {
+        bool moveHoriz;
+        if (x == goal.x) {
+            moveHoriz = false;
+        } else if (y == goal.y) {
+            moveHoriz = true;
+        } else {
+            moveHoriz = (rand() % 2) == 0;
+        }
+
+        if (moveHoriz) {
+            x += (goal.x > x ? 1 : -1);
+        } else {
+            y += (goal.y > y ? 1 : -1);
+        }
+
+        map[y][x] = '.';
+    }
+    map[goal.y][goal.x] = 'E';
+    map[start.y][start.x] = 'P';
+
+    // Randomly open additional floor spaces while preserving the guaranteed path.
+    for (int row = 1; row < rows - 1; ++row) {
+        for (int col = 1; col < cols - 1; ++col) {
+            if (map[row][col] == '#') {
+                if ((rand() % 100) < openChance) {
+                    map[row][col] = '.';
+                }
+            }
+        }
+    }
+
+    // Protect path endpoints.
+    map[start.y][start.x] = 'P';
+    map[goal.y][goal.x] = 'E';
+
+    return map;
+}
+
+void Game::runRandomGraphMapDemo() {
+    Position start{-1, -1};
+    Position goal{-1, -1};
+    std::vector<std::string> graphMap = createRandomGraphMap(9, 19, start, goal, 35);
+
+    cout << "\n--- Random Graph Search Demo ---" << endl;
+    cout << "Generated random dungeon map with a guaranteed path from P to E." << endl;
+    for (const std::string& row : graphMap) {
+        cout << row << endl;
+    }
+
+    auto bfsPath = breadthFirstSearch(graphMap, start, goal);
+    auto dfsPath = depthFirstSearch(graphMap, start, goal);
+
+    if (bfsPath.empty() || dfsPath.empty()) {
+        cout << "Error: generated map is unexpectedly unreachable. Try again." << endl;
+        return;
+    }
+
+    std::vector<std::string> bfsMap = graphMap;
+    for (const Position& step : bfsPath) {
+        if (bfsMap[step.y][step.x] == '.') {
+            bfsMap[step.y][step.x] = '*';
+        }
+    }
+
+    cout << "\nBFS path (shortest path):" << endl;
+    for (const std::string& row : bfsMap) {
+        cout << row << endl;
+    }
+    cout << "BFS path length: " << bfsPath.size() << " steps" << endl;
+
+    std::vector<std::string> dfsMap = graphMap;
+    for (const Position& step : dfsPath) {
+        if (dfsMap[step.y][step.x] == '.') {
+            dfsMap[step.y][step.x] = '+';
+        }
+    }
+
+    cout << "\nDFS path (first found path):" << endl;
+    for (const std::string& row : dfsMap) {
+        cout << row << endl;
+    }
+    cout << "DFS path length: " << dfsPath.size() << " steps" << endl;
+
+    cout << "\nNote: BFS finds the shortest route, while DFS finds a path by exploring one branch deeply." << endl;
 }
 
 void Game::movePlayer(int dx, int dy) {

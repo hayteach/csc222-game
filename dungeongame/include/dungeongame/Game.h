@@ -77,6 +77,17 @@ private:
     std::string normalizeString(const std::string& input) const;
     std::vector<std::string> loadColorListFromFile(const std::string& path) const;
 
+    // Week 13 graph search lab activities
+    // These methods support the BFS/DFS dungeon exploration demo added for Week 13.
+    void runGraphSearchLab();
+    void runBFSPathDemo();
+    void runDFSExploreDemo();
+    void runRandomGraphMapDemo();
+    std::vector<std::string> createRandomGraphMap(int rows, int cols, Position& start, Position& goal, int openChance = 35) const;
+    std::vector<Position> getNeighbors(const std::vector<std::string>& map, const Position& current) const;
+    std::vector<Position> breadthFirstSearch(const std::vector<std::string>& map, const Position& start, const Position& goal) const;
+    std::vector<Position> depthFirstSearch(const std::vector<std::string>& map, const Position& start, const Position& goal) const;
+
     // Menu helpers (Week 12 menu refactor)
     void runInventoryMenu();
     void runDemosMenu();
